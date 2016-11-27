@@ -1,0 +1,4 @@
+node_modules/
+.idea/
+slack_stream-win32-x64/
+dist/
