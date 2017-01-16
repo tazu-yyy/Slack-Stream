@@ -142,5 +142,5 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
   text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
 
   let record: string = "<tr>" + image_column + text_column + "</tr>";
-  table.append(record);
+  table.prepend(record);
 });
