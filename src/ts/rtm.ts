@@ -10,12 +10,15 @@ let channel_list = {};
 let bot_list = {};
 let emoji_list = {};
 
+let slack = require(slack_sdk_path);
 let emojione = require("emojione");
-let RtmClient = require(slack_sdk_path).RtmClient;
-let RTM_EVENTS = require(slack_sdk_path).RTM_EVENTS;
-let CLIENT_EVENTS = require(slack_sdk_path).CLIENT_EVENTS;
+let RtmClient = slack.RtmClient;
+let RTM_EVENTS = slack.RTM_EVENTS;
+let CLIENT_EVENTS = slack.CLIENT_EVENTS;
+let WebClient = slack.WebClient;
 let marked = require("marked");
 let rtm = new RtmClient(token, {logLevel: 'debug'});
+let web = new WebClient(token);
 rtm.start();
 
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function (rtmStartData) {
@@ -108,6 +111,14 @@ function message_escape(m: string): string {
   return message;
 }
 
+function channel_mark (channel, timestamp) {
+  web.channels.mark (channel, timestamp, function(err, info) {
+    if(err) {
+        console.log(err);
+    }
+  });
+}
+
 rtm.on(RTM_EVENTS.MESSAGE, function (message) {
   //console.log(message);
   // update
@@ -151,4 +162,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
 
   let record: string = "<tr>" + image_column + text_column + "</tr>";
   table.prepend(record);
+
+  channel_mark(message["channel"], ts);
 });
