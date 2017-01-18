@@ -20,6 +20,8 @@ let marked = require("marked");
 let webs = new Array();
 let rtms = new Array();
 
+let mark_read_flag = (localStorage.mark_read_flag == "true");
+
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
   rtms[i].start();
@@ -189,6 +191,8 @@ for(var i in rtms){
     let record: string = "<tr>" + image_column + text_column + "</tr>";
     table.prepend(record);
 
-    channel_mark(message["channel"], ts, web);
+    if (mark_read_flag) {
+      channel_mark(message["channel"], ts, web);
+    }
   });
 }

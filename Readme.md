@@ -13,6 +13,7 @@ cd path-to-this-reposritory
 npm install
 
 # set your api token
+cp src/ts/token.ts.sample src/ts/token.ts
 vi src/ts/token.ts
 
 gulp build
