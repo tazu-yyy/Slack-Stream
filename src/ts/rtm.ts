@@ -5,10 +5,10 @@
 
 let slack_sdk_path: string = '@slack/client';
 
-let user_list = {};
-let channel_list = {};
-let bot_list = {};
-let emoji_list = {};
+let user_lists = new Array();
+let channel_lists = new Array();
+let bot_lists = new Array();
+let emoji_lists = new Array();
 
 let slack = require(slack_sdk_path);
 let emojione = require("emojione");
@@ -17,25 +17,43 @@ let RTM_EVENTS = slack.RTM_EVENTS;
 let CLIENT_EVENTS = slack.CLIENT_EVENTS;
 let WebClient = slack.WebClient;
 let marked = require("marked");
-let rtm = new RtmClient(token, {logLevel: 'debug'});
-let web = new WebClient(token);
-rtm.start();
+let webs = new Array();
+let rtms = new Array();
 
-rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function (rtmStartData) {
-  console.log(
-    `Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`
-  );
-});
+for(var i in tokens){
+  rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
+  rtms[i].start();
+  webs[i] = new WebClient(tokens[i]);
+
+  channel_lists[i] = {};
+  init_channel_list(tokens[i], channel_lists[i]);
 
 
-function update_message(message: {}): number {
+  user_lists[i] = {};
+  init_user_list(tokens[i], user_lists[i]);
+  emoji_lists[i] = {};
+  init_emoji_list(tokens[i], emoji_lists[i]);
+
+  // bot cannot be retrieved here
+  bot_lists[i] = {};
+}
+
+for(var i in rtms){
+  rtms[i].on(CLIENT_EVENTS.RTM.AUTHENTICATED, function (rtmStartData) {
+    console.log(
+    `Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet    connected to a channel`
+    );
+  });
+}
+
+function update_message(message: {}, user_list: {}, emoji_list: {}): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
   let message_id: string = "#id_" + pre_message["ts"].replace(".", "");
   let message_form = $(message_id);
 
   current_message["text"] += "<span style='font-size: small; color: #aaaaaa;'> (edited)</span>";
-  message_form.html(message_escape(current_message["text"]));
+  message_form.html(message_escape(current_message["text"], user_list, emoji_list));
 
   return 0;
 }
@@ -48,7 +66,7 @@ function url_to_html(m: string): string {
   return message;
 }
 
-function user_to_html(m: string): string {
+function user_to_html(m: string, user_list: {}): string {
   let message: string = m;
   let users: string[] = message.match(/<@([^>]+)>/g);
   if(users) {
@@ -75,7 +93,7 @@ function newline_to_html(m: string): string {
   return message;
 }
 
-function convert_emoji(m: string): string {
+function convert_emoji(m: string, emoji_list: {}): string {
   let message = m;
   let emojis = m.match(/:[^:]+:/g);
   if(!!emojis) {
@@ -100,18 +118,18 @@ function convert_emoji_protocol(m: string): string {
   return message;
 }
 
-function message_escape(m: string): string {
+function message_escape(m: string, user_list: {}, emoji_list: {}): string {
   let message: string = m;
   message = url_to_html(message);
-  message = user_to_html(message);
+  message = user_to_html(message, user_list);
   message = marked(message);
   message = newline_to_html(message);
-  message = convert_emoji(message);
+  message = convert_emoji(message, emoji_list);
 
   return message;
 }
 
-function channel_mark (channel, timestamp) {
+function channel_mark (channel, timestamp, web) {
   web.channels.mark (channel, timestamp, function(err, info) {
     if(err) {
         console.log(err);
@@ -119,11 +137,19 @@ function channel_mark (channel, timestamp) {
   });
 }
 
-rtm.on(RTM_EVENTS.MESSAGE, function (message) {
+for(var i in rtms){
+  let user_list:{} = user_lists[i];
+  let channel_list:{} = channel_lists[i];
+  let bot_list:{} = bot_lists[i];
+  let emoji_list:{} = emoji_lists[i];
+  let token: string = tokens[i]; 
+  let web = webs[i];
+
+  rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
   //console.log(message);
   // update
   if(message["subtype"] == "message_changed")
-    return update_message(message);
+    return update_message(message, user_list, emoji_list);
 
   // bot_message or message
   let user: string = "";
@@ -131,7 +157,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
   let nick: string = "NoName";
   if(message["subtype"] == "bot_message") {
     if(!bot_list[message["bot_id"]])
-      get_bot_info(message["bot_id"]);
+      get_bot_info(message["bot_id"], token, bot_list);
     user = bot_list[message["bot_id"]];
     image = user["icons"]["image_36"];
     nick = message["username"];
@@ -140,7 +166,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
     image = user["profile"]["image_32"];
     nick = user["name"];
   }
-  let text: string = message["text"] ? message_escape(message["text"]) : "";
+  let text: string = message["text"] ? message_escape(message["text"], user_list, emoji_list) : "";
   let channel: {} = channel_list[message["channel"]];
   let table = $("#main_table");
   let ts: string = message["ts"];
@@ -163,5 +189,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
   let record: string = "<tr>" + image_column + text_column + "</tr>";
   table.prepend(record);
 
-  channel_mark(message["channel"], ts);
+  channel_mark(message["channel"], ts, web);
 });
+}
