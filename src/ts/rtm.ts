@@ -55,6 +55,14 @@ function user_to_html(m: string): string {
       message = message.replace(user, name);
     });
   }
+
+  let specials: string[] = message.match(/<!([^>]+)>/g);
+  if(specials) {
+    specials.forEach(function (special) {
+      let name: string = "@" + special.substr(2, special.length - 3);
+      message = message.replace(special, name);
+    });
+  }
   return message;
 }
 
@@ -142,5 +150,5 @@ rtm.on(RTM_EVENTS.MESSAGE, function (message) {
   text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
 
   let record: string = "<tr>" + image_column + text_column + "</tr>";
-  table.append(record);
+  table.prepend(record);
 });
