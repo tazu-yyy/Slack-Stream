@@ -20,7 +20,7 @@ let marked = require("marked");
 let webs = new Array();
 let rtms = new Array();
 
-let mark_read_flag = (localStorage.mark_read_flag == "true");
+let mark_read_flag = (localStorage["mark_read_flag"] == "true");
 
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});

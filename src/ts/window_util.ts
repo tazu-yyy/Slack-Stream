@@ -9,7 +9,7 @@ menu.append(new MenuItem({
     checked: mark_read_flag,
     click: function() {
         mark_read_flag = !mark_read_flag;
-        localStorage.mark_read_flag = mark_read_flag;
+        localStorage["mark_read_flag"] = mark_read_flag;
     }
 }));
 
