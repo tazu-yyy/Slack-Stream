@@ -148,47 +148,47 @@ for(var i in rtms){
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
   //console.log(message);
   // update
-  if(message["subtype"] == "message_changed")
-    return update_message(message, user_list, emoji_list);
+    if(message["subtype"] == "message_changed")
+      return update_message(message, user_list, emoji_list);
 
-  // bot_message or message
-  let user: string = "";
-  let image: string = "";
-  let nick: string = "NoName";
-  if(message["subtype"] == "bot_message") {
-    if(!bot_list[message["bot_id"]])
-      get_bot_info(message["bot_id"], token, bot_list);
-    user = bot_list[message["bot_id"]];
-    image = user["icons"]["image_36"];
-    nick = message["username"];
-  } else {
-    user = user_list[message["user"]];
-    image = user["profile"]["image_32"];
-    nick = user["name"];
-  }
-  let text: string = message["text"] ? message_escape(message["text"], user_list, emoji_list) : "";
-  let channel: {} = channel_list[message["channel"]];
-  let table = $("#main_table");
-  let ts: string = message["ts"];
+    // bot_message or message
+    let user: string = "";
+    let image: string = "";
+    let nick: string = "NoName";
+    if(message["subtype"] == "bot_message") {
+      if(!bot_list[message["bot_id"]])
+        get_bot_info(message["bot_id"], token, bot_list);
+      user = bot_list[message["bot_id"]];
+      image = user["icons"]["image_36"];
+      nick = message["username"];
+    } else {
+      user = user_list[message["user"]];
+      image = user["profile"]["image_32"];
+      nick = user["name"];
+    }
+    let text: string = message["text"] ? message_escape(message["text"], user_list, emoji_list) : "";
+    let channel: {} = channel_list[message["channel"]];
+    let table = $("#main_table");
+    let ts: string = message["ts"];
 
-  let ts_date: Date = new Date(new Date(Number(ts)*1000));
-  let ts_hour: string = ts_date.getHours().toString();
-  ts_hour = Number(ts_hour) < 10 ? "0" + ts_hour : ts_hour;
-  let ts_min: string = ts_date.getMinutes().toString();
-  ts_min = Number(ts_min) < 10 ? "0" + ts_min : ts_min;
-  let ts_s: string = ts_hour + ":" + ts_min;
+    let ts_date: Date = new Date(new Date(Number(ts)*1000));
+    let ts_hour: string = ts_date.getHours().toString();
+    ts_hour = Number(ts_hour) < 10 ? "0" + ts_hour : ts_hour;
+    let ts_min: string = ts_date.getMinutes().toString();
+    ts_min = Number(ts_min) < 10 ? "0" + ts_min : ts_min;
+    let ts_s: string = ts_hour + ":" + ts_min;
 
-  let color: string = channel ? channel["color"] : channel_color(nick);
-  let name: string = channel ? channel["name"] : "DM";
+    let color: string = channel ? channel["color"] : channel_color(nick);
+    let name: string = channel ? channel["name"] : "DM";
 
-  let image_column: string = "<td><img src='" + image  + "' /></td>";
-  let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + name + "</span></b> ";
-  text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
-  text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
+    let image_column: string = "<td><img src='" + image  + "' /></td>";
+    let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + name + "</span></b> ";
+    text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
+    text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
 
-  let record: string = "<tr>" + image_column + text_column + "</tr>";
-  table.prepend(record);
+    let record: string = "<tr>" + image_column + text_column + "</tr>";
+    table.prepend(record);
 
-  channel_mark(message["channel"], ts, web);
-});
+    channel_mark(message["channel"], ts, web);
+  });
 }
