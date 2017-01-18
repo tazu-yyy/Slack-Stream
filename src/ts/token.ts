@@ -1,1 +1,1 @@
-var token: string = '' || '';
+var tokens: string[] = [''];

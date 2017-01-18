@@ -14,7 +14,7 @@ function channel_color(s) {
 }
 
 
-function get_bot_info(id:string) {
+function get_bot_info(id:string, token: string, bot_list: {}) {
     let api_url:string = "https://slack.com/api/bots.info";
     //console.log("token=" + token + "&bot=" + id);
     $.ajax({
