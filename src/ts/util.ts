@@ -33,3 +33,18 @@ function get_bot_info(id:string, token: string, bot_list: {}) {
         }
     });
 }
+
+function get_team_info(token: string, team_info: {}) {
+    let api_url:string = "https://slack.com/api/team.info";
+    $.ajax({
+        type: "GET",
+        url: api_url,
+        data: "token=" + token,
+        async: false,
+        success: function (data) {
+            if (data["ok"]) {
+                team_info["team"] = data["team"];
+            }
+        }
+    });
+}

@@ -138,6 +138,7 @@ for(var i in rtms){
   let emoji_list:{} = emoji_lists[i];
   let token: string = tokens[i]; 
   let web = webs[i];
+  let team_info = {};
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
   //console.log(message);
@@ -175,8 +176,14 @@ for(var i in rtms){
     let color: string = channel ? channel["color"] : channel_color(nick);
     let name: string = channel ? channel["name"] : "DM";
 
+    if(!team_info["team"])
+      get_team_info(token, team_info);
+    let team: string = team_info["team"]["name"];
+
     let image_column: string = "<td><img src='" + image  + "' /></td>";
     let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + name + "</span></b> ";
+    if(tokens.length > 1)
+      text_column += "(" + team + ") ";
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
     text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
 
