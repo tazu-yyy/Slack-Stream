@@ -8,7 +8,7 @@
     "@types/jquery": "^2.0.34",
     "electron": "^1.4.4",
     "electron-connect": "^0.6.0",
-    "emojione": "^2.2.6",
+    "emojione": "^2.2.7",
     "marked": "^0.3.6",
     "seedrandom": "^2.4.2",
     "gulp": "^3.9.1",

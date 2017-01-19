@@ -109,14 +109,6 @@ function convert_emoji(m: string, emoji_list: {}): string {
       }
     }
   }
-  message = convert_emoji_protocol(message);
-  return message;
-}
-
-function convert_emoji_protocol(m: string): string {
-  let message = m;
-  let cdn = "//cdn.jsdelivr.net/emojione/assets/png/";
-  message = message.replace(new RegExp(cdn, "g"), "https:" + cdn);
   return message;
 }
 
