@@ -149,7 +149,10 @@ for(var i in rtms){
     let user: string = "";
     let image: string = "";
     let nick: string = "NoName";
-    if(message["subtype"] == "bot_message") {
+
+    if(message["subtype"] == "message_deleted") {
+      return; // ignore
+    } else if(message["subtype"] == "bot_message") {
       if(!bot_list[message["bot_id"]])
         get_bot_info(message["bot_id"], token, bot_list);
       user = bot_list[message["bot_id"]];
