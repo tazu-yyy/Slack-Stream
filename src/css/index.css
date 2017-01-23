@@ -1,5 +1,9 @@
+a {
+    word-break: break-all;
+}
+
 td {
-	word-break: break-all;
+    word-break: normal;
 }
 
 .emojione {
