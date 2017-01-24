@@ -152,18 +152,14 @@ for(var i in rtms){
   let team_info = {};
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
-  //console.log(message);
-  // update
-    if(message["subtype"] == "message_changed")
-      return update_message(message, user_list, emoji_list);
-
-    // bot_message or message
     let user: string = "";
     let image: string = "";
     let nick: string = "NoName";
 
     if(message["subtype"] == "message_deleted") {
       return delete_message(message);
+    } else if(message["subtype"] == "message_changed") {
+      return update_message(message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
       if(!bot_list[message["bot_id"]])
         get_bot_info(message["bot_id"], token, bot_list);
