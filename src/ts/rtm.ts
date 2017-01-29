@@ -48,6 +48,17 @@ for(var i in rtms){
   });
 }
 
+function delete_message(message: {}): number {
+  let pre_message: {} = message["previous_message"];
+  let current_message: {} = message["message"];
+  let tr_id: string = "#id_tr_" + pre_message["ts"].replace(".", "");
+  let message_tr = $(tr_id);
+
+  message_tr.html("");
+
+  return 0;
+}
+
 function update_message(message: {}, user_list: {}, emoji_list: {}): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
@@ -141,18 +152,14 @@ for(var i in rtms){
   let team_info = {};
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
-  //console.log(message);
-  // update
-    if(message["subtype"] == "message_changed")
-      return update_message(message, user_list, emoji_list);
-
-    // bot_message or message
     let user: string = "";
     let image: string = "";
     let nick: string = "NoName";
 
     if(message["subtype"] == "message_deleted") {
-      return; // ignore
+      return delete_message(message);
+    } else if(message["subtype"] == "message_changed") {
+      return update_message(message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
       if(!bot_list[message["bot_id"]])
         get_bot_info(message["bot_id"], token, bot_list);
@@ -190,7 +197,7 @@ for(var i in rtms){
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
     text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
 
-    let record: string = "<tr>" + image_column + text_column + "</tr>";
+    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "'>" + image_column + text_column + "</tr>";
     table.prepend(record);
 
     if (mark_read_flag) {
