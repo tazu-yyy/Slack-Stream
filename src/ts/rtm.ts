@@ -93,7 +93,9 @@ function user_to_html(m: string, user_list: {}): string {
   let specials: string[] = message.match(/<!([^>]+)>/g);
   if(specials) {
     specials.forEach(function (special) {
-      let name: string = "@" + special.substr(2, special.length - 3);
+      let all: string = special.substr(2, special.length - 3);
+      let bar: number = all.indexOf("|");
+      let name: string = bar == -1 ? ("@" + all) : all.substr(bar + 1);
       message = message.replace(special, name);
     });
   }
@@ -142,6 +144,21 @@ function channel_mark (channel, timestamp, web) {
   });
 }
 
+function extract_text(message: any, user_list: {}, emoji_list: {}): string {
+  if(message["text"]) {
+    return message_escape(message["text"], user_list, emoji_list);
+  } else if(message["attachments"]) {
+    let attachments: [any] = message["attachments"];
+    return attachments.map (attachment => {
+      let text = attachment["text"] ? message_escape(attachment["text"], user_list, emoji_list) : "";
+      let pretext = attachment["pretext"] ? message_escape(attachment["pretext"], user_list, emoji_list) : "";
+      return text + pretext;
+    }).reduce((a, b) => a + b);    
+  } else {
+     return "";
+  }
+}
+
 for(var i in rtms){
   let user_list:{} = user_lists[i];
   let channel_list:{} = channel_lists[i];
@@ -171,7 +188,7 @@ for(var i in rtms){
       image = user["profile"]["image_32"];
       nick = user["name"];
     }
-    let text: string = message["text"] ? message_escape(message["text"], user_list, emoji_list) : "";
+    let text: string = extract_text(message, user_list, emoji_list);
     let channel: {} = channel_list[message["channel"]];
     let table = $("#main_table");
     let ts: string = message["ts"];
