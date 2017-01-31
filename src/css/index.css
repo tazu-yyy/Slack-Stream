@@ -2,8 +2,18 @@ a {
     word-break: break-all;
 }
 
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+td:nth-child(1) {
+    width: 40px;
+}
+
 td {
-    word-break: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .emojione {
