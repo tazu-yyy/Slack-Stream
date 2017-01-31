@@ -54,7 +54,7 @@ function delete_message(message: {}): number {
   let tr_id: string = "#id_tr_" + pre_message["ts"].replace(".", "");
   let message_tr = $(tr_id);
 
-  message_tr.html("");
+  message_tr.remove();
 
   return 0;
 }
