@@ -71,6 +71,12 @@ function update_message(message: {}, user_list: {}, emoji_list: {}): number {
   return 0;
 }
 
+function mail_to_html(m: string): string {
+  let message: string = m;
+  message = message.replace(/<mailto:[^\|>]+\|([^\|>]+)>/g,  "<a href='mailto:$1'>$1</a>");
+  return message;
+}
+
 function url_to_html(m: string): string {
   let message: string = m;
   message = message.replace(/<(http[^\|>]+)\|([^\|>]+)>/g,  "<a href='$1'>$2</a>");
@@ -128,6 +134,7 @@ function convert_emoji(m: string, emoji_list: {}): string {
 function message_escape(m: string, user_list: {}, emoji_list: {}): string {
   let message: string = m;
   message = url_to_html(message);
+  message = mail_to_html(message);
   message = user_to_html(message, user_list);
   message = marked(message);
   message = newline_to_html(message);
