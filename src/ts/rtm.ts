@@ -185,11 +185,16 @@ for(var i in rtms){
     } else if(message["subtype"] == "message_changed") {
       return update_message(message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
-      if(!bot_list[message["bot_id"]])
-        get_bot_info(message["bot_id"], token, bot_list);
-      user = bot_list[message["bot_id"]];
-      image = user["icons"]["image_36"];
-      nick = message["username"];
+      if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
+        image = ""
+        nick = "slackbot"
+      } else { // Normal bots
+        if(!bot_list[message["bot_id"]])
+          get_bot_info(message["bot_id"], token, bot_list);
+        user = bot_list[message["bot_id"]];
+        image = user["icons"]["image_36"];
+        nick = message["username"];
+      }
     } else {
       user = user_list[message["user"]];
       image = user["profile"]["image_32"];
