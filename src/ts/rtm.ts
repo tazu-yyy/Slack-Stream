@@ -21,6 +21,7 @@ let webs = new Array();
 let rtms = new Array();
 
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
+let show_one_channel = false;
 
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
@@ -48,10 +49,10 @@ for(var i in rtms){
   });
 }
 
-function delete_message(message: {}): number {
+function delete_message(message: {}, team_name: string, ch_name: string): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
-  let tr_id: string = "#id_tr_" + pre_message["ts"].replace(".", "");
+  let tr_id: string = "#id_tr_" + pre_message["ts"].replace(".", "") + "_" + team_name + "_" + ch_name;
   let message_tr = $(tr_id);
 
   message_tr.remove();
@@ -179,9 +180,14 @@ for(var i in rtms){
     let user: string = "";
     let image: string = "";
     let nick: string = "NoName";
+    let channel: {} = channel_list[message["channel"]];
+    let name: string = channel ? channel["name"] : "DM";
+    if(!team_info["team"])
+      get_team_info(token, team_info);
+    let team: string = team_info["team"]["name"];
 
     if(message["subtype"] == "message_deleted") {
-      return delete_message(message);
+      return delete_message(message, team, name);
     } else if(message["subtype"] == "message_changed") {
       return update_message(message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
@@ -201,7 +207,6 @@ for(var i in rtms){
       nick = user["name"];
     }
     let text: string = extract_text(message, user_list, emoji_list);
-    let channel: {} = channel_list[message["channel"]];
     let table = $("#main_table");
     let ts: string = message["ts"];
 
@@ -213,20 +218,16 @@ for(var i in rtms){
     let ts_s: string = ts_hour + ":" + ts_min;
 
     let color: string = channel ? channel["color"] : channel_color(nick);
-    let name: string = channel ? channel["name"] : "DM";
-
-    if(!team_info["team"])
-      get_team_info(token, team_info);
-    let team: string = team_info["team"]["name"];
 
     let image_column: string = "<td><img src='" + image  + "' /></td>";
     let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + name + "</span></b> ";
     if(tokens.length > 1)
       text_column += "(" + team + ") ";
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
-    text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'>" + text + "</span></td>";
+    text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'> "+ text + "</span></td>";
 
-    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "'>" + image_column + text_column + "</tr>";
+    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "_" + team + "_" + name +
+	  "'>"+ image_column + text_column + "</tr>";
     table.prepend(record);
 
     if (mark_read_flag) {
