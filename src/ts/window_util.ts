@@ -30,6 +30,7 @@ menu.append(new MenuItem({
 		break;
 
 	    if(!!dom.id && dom.id.indexOf("id_tr_") != -1){
+		// dom.id: "id_tr_time_teamname_chname"
 		team_to_show = dom.id.split("_")[3];
 		ch_to_show = dom.id.split("_")[4];
 		break;
