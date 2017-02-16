@@ -118,6 +118,8 @@ function convert_emoji(m: string, emoji_list: {}): string {
         let image_url = emoji_list[emoji.substr(1, emoji.length-2)];
         let html = '<img class="emojione" src="' + image_url + '" />';
         return html;
+      } else {
+        return emoji;
       }
   });
 }
