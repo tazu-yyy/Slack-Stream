@@ -174,13 +174,13 @@ for(var i in rtms){
     let image: string = "";
     let nick: string = "NoName";
     let channel: {} = channel_list[message["channel"]];
-    let name: string = channel ? channel["name"] : "DM";
+    let channel_name: string = channel ? channel["name"] : "DM";
     if(!team_info["team"])
       get_team_info(token, team_info);
-    let team: string = team_info["team"]["name"];
+    let team_name: string = team_info["team"]["name"];
 
     if(message["subtype"] == "message_deleted") {
-      return delete_message(message, team, name);
+      return delete_message(message, team_name, channel_name);
     } else if(message["subtype"] == "message_changed") {
       return update_message(message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
@@ -213,16 +213,16 @@ for(var i in rtms){
     let color: string = channel ? channel["color"] : channel_color(nick);
 
     let image_column: string = "<td><img src='" + image  + "' /></td>";
-    let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + name + "</span></b> ";
+    let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + channel_name + "</span></b> ";
     if(tokens.length > 1)
-      text_column += "(" + team + ") ";
+      text_column += "(" + team_name + ") ";
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
     text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'> "+ text + "</span></td>";
 
     let style: string = "";
-    if(show_one_channel && (team != team_to_show || name != ch_to_show))
+    if(show_one_channel && (team_name != team_to_show || channel_name != ch_to_show))
       style = "display: none";
-    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "_" + team + "_" + name +
+    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "_" + team_name + "_" + channel_name +
       "' style='" + style + "'>"+ image_column + text_column + "</tr>";
     table.prepend(record);
 
