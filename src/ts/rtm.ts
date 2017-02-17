@@ -112,7 +112,7 @@ function newline_to_html(m: string): string {
 }
 
 function convert_emoji(m: string, emoji_list: {}): string {
-  return m.replace(/:[a-zA-Z0-9_\-]+:/g, function(emoji) {
+  return m.replace(/:[a-zA-Z0-9_+\-]+:/g, function(emoji) {
       if (emoji != emojione.shortnameToImage(emoji)) {
         return emojione.shortnameToImage(emoji);
       } else if(!!emoji_list[emoji.substr(1, emoji.length-2)]) {
