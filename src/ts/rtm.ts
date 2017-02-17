@@ -88,24 +88,20 @@ function url_to_html(m: string): string {
 
 function user_to_html(m: string, user_list: {}): string {
   let message: string = m;
-  let users: string[] = message.match(/<@([^>]+)>/g);
-  if(users) {
-    users.forEach(function (user) {
+  
+  message = message.replace(/<@([^>]+)>/g, function (user) {
       let short_user: string = user.replace(/\|[^>]+/g, "");
       let name: string = "@" + user_list[short_user.substr(2, short_user.length - 3)].name;
-      message = message.replace(user, name);
-    });
-  }
+      return name;
+  });
 
-  let specials: string[] = message.match(/<!([^>]+)>/g);
-  if(specials) {
-    specials.forEach(function (special) {
+  message = message.replace(/<!([^>]+)>/g, function(special) {
       let all: string = special.substr(2, special.length - 3);
       let bar: number = all.indexOf("|");
       let name: string = bar == -1 ? ("@" + all) : all.substr(bar + 1);
-      message = message.replace(special, name);
-    });
-  }
+      return name;
+  });
+
   return message;
 }
 
@@ -116,20 +112,17 @@ function newline_to_html(m: string): string {
 }
 
 function convert_emoji(m: string, emoji_list: {}): string {
-  let message = m;
-  let emojis = m.match(/:[^:]+:/g);
-  if(!!emojis) {
-    for (let i = 0; i < emojis.length; i++) {
-      if (emojis[i] != emojione.shortnameToImage(emojis[i])) {
-        message = message.replace(emojis[i], emojione.shortnameToImage(emojis[i]));
-      } else if(!!emoji_list[emojis[i].substr(1, emojis[i].length-2)]) {
-        let image_url = emoji_list[emojis[i].substr(1, emojis[i].length-2)];
+  return m.replace(/:[a-zA-Z0-9_-]+:/g, function(emoji) {
+      if (emoji != emojione.shortnameToImage(emoji)) {
+        return emojione.shortnameToImage(emoji);
+      } else if(!!emoji_list[emoji.substr(1, emoji.length-2)]) {
+        let image_url = emoji_list[emoji.substr(1, emoji.length-2)];
         let html = '<img class="emojione" src="' + image_url + '" />';
-        message = message.replace(emojis[i], html);
+        return html;
+      } else {
+        return emoji;
       }
-    }
-  }
-  return message;
+  });
 }
 
 function message_escape(m: string, user_list: {}, emoji_list: {}): string {
