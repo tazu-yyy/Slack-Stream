@@ -219,8 +219,11 @@ for(var i in rtms){
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
     text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'> "+ text + "</span></td>";
 
+    let style: string = "";
+    if(show_one_channel && (team != team_to_show || name != ch_to_show))
+      style = "display: none";
     let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "_" + team + "_" + name +
-	  "'>"+ image_column + text_column + "</tr>";
+      "' style='" + style + "'>"+ image_column + text_column + "</tr>";
     table.prepend(record);
 
     if (mark_read_flag) {

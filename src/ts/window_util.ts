@@ -3,6 +3,7 @@ const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
 
 let clicked_dom;
+let team_to_show, ch_to_show;
 
 var menu = new Menu();
 menu.append(new MenuItem({
@@ -22,7 +23,6 @@ menu.append(new MenuItem({
     click: function(event) {
         show_one_channel = !show_one_channel;
 	let dom = clicked_dom;
-	let team_to_show, ch_to_show;
 
 	while(true){
 	    // outside of table is clicked
