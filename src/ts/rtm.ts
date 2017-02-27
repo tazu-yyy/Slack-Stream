@@ -211,9 +211,16 @@ for(var i in rtms){
     let ts_s: string = ts_hour + ":" + ts_min;
 
     let color: string = channel ? channel["color"] : channel_color(nick);
+    
+    let link: string = "";
+    if(channel_name == "DM"){
+        link = "slack://user?team=" + team_info["team"]["id"] + "&id=" + message["user"];
+    }else{
+        link = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
+    }
 
     let image_column: string = "<td><img src='" + image  + "' /></td>";
-    let text_column: string = "<td><b>" + nick + " <span style='color: " + color + "'>#" + channel_name + "</span></b> ";
+    let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + color + "'>#" + channel_name + "</span></b></a> ";
     if(tokens.length > 1)
       text_column += "(" + team_name + ") ";
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
