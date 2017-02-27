@@ -20,3 +20,11 @@ td {
 	width: 1em;
 	height: 1em;
 }
+
+a.slack-link {
+    text-decoration: none;
+}
+
+a:hover.slack-link {
+    text-decoration: none;
+}
