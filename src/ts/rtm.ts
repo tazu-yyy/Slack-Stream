@@ -60,6 +60,52 @@ function delete_message(message: {}, team_name: string, ch_name: string): number
   return 0;
 }
 
+function create_attachment_message(attachments: {}): string {
+  let main_dom = $('<div></div>').addClass('div-attachment pull-left');
+
+  // author
+  let author_dom = $('<span></span>').addClass('attachment-author');
+  if(attachments['author_icon']) author_dom.html('<img src="' + attachments['author_icon'] + '" />');
+  if(attachments['author_link']) {
+    let author_name_dom = $('<span></span>').addClass('attachment-author-name');
+    if (attachments['author_link']) {
+      author_name_dom = $('<a></a>').attr('href', attachments['author_link']).addClass('attachment-author-name');
+    }
+    author_name_dom.text(attachments['name']);
+    author_dom.append(author_name_dom);
+    main_dom.append(author_dom);
+  }
+
+  // title
+  if(attachments['title']) {
+    let title_dom = $('<b></b>').addClass('attachment-title');
+    if(attachments['title_link']) {
+      title_dom = $('<a></a>').attr('href', attachments['title_link']).attr('style', 'font-weight: bold;').addClass('attachment-title');
+    }
+    title_dom.text(attachments['title']);
+    main_dom.append(title_dom);
+  }
+
+  // text
+  if(attachments['text']) {
+    main_dom.append(message_escape(attachments['text']));
+  }
+
+  // image
+  if(attachments['image_url']) {
+    let image_dom = $('<div style="width: 100%;"></div>').addClass('attachment-image');
+    image_dom.html('<img src="' + attachments['image_url'] + '" width="100%" />');
+    main_dom.append(image_dom);
+  } else if (attachments['thumb_url']) {
+    let thumb_dom = $('<div style="width: 20%;"></div>').addClass('pull-right');
+    let width = 'width="100%"', height = "";
+    thumb_dom.html('<img src="' + attachments['thumb_url'] + '" ' + width + ' ' + height + '/>');
+    main_dom.attr('style', 'width: 75%;');
+    return main_dom.prop('outerHTML') + thumb_dom.prop('outerHTML');
+  }
+  return main_dom.prop('outerHTML');
+}
+
 function update_message(message: {}, user_list: {}, emoji_list: {}): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
@@ -67,8 +113,12 @@ function update_message(message: {}, user_list: {}, emoji_list: {}): number {
   let message_form = $(message_id);
 
   current_message["text"] += "<span style='font-size: small; color: #aaaaaa;'> (edited)</span>";
-  message_form.html(message_escape(current_message["text"], user_list, emoji_list));
+  let edited_message = message_escape(current_message["text"], user_list, emoji_list);
+  if(current_message["attachments"]) {
+    edited_message += create_attachment_message(current_message["attachments"][0]);
+  }
 
+  message_form.html(edited_message);
   return 0;
 }
 

@@ -18,7 +18,7 @@ function createWindow () {
   mainWindow = new BrowserWindow(bounds);
   mainWindow.setMenu(null);
   mainWindow.loadURL(`file://${__dirname}/index.html`);
-  //mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('close', function () {
     fs.writeFileSync(info_path, JSON.stringify(mainWindow.getBounds()));

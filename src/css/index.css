@@ -28,3 +28,9 @@ a.slack-link {
 a:hover.slack-link {
     text-decoration: none;
 }
+
+.div-attachment {
+    padding-left: 10px;
+    border-left: 3px solid #cccccc;
+}
+
