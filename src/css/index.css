@@ -34,3 +34,56 @@ a:hover.slack-link {
     border-left: 3px solid #cccccc;
 }
 
+:hover.message-button {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.slack_message_textarea {
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none;
+    padding-top: 0px;
+}
+
+.slack_message_textarea:focus {
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+#slack_message_form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    z-index: 999;
+}
+
+.slack_message_window {
+  margin: 5px 5px 5px 5px;
+  padding: 3px 5px 25px 5px;
+  border:solid 1px #CCCCCC;
+  border-radius: 5px;	
+  display: inline-block;
+}
+
+.slack_message_close {
+  font-size: 12px;
+}
+
+.slack_message_close:hover {
+    opacity: 0.5;
+    cursor: pointer;
+}

@@ -23,6 +23,9 @@ let rtms = new Array();
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
 let show_one_channel = false;
 
+let post_message;
+let posting = false;
+
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
   rtms[i].start();
@@ -49,11 +52,41 @@ for(var i in rtms){
   });
 }
 
-function delete_message(message: {}, team_name: string, ch_name: string): number {
+$("#slack_message_input").keypress(function(e) {
+  if(e.which == 13 && e.altKey){ // Alt + Enter
+    let input = $("#slack_message_input");
+    input.val(input.val() + "\n");
+  }else if(e.which == 13){ // Enter
+    e.preventDefault();
+    submit_message();
+  } 
+});
+
+$("#slack_message_input").keyup(function(e) {
+  if(e.which == 27){ // Esc
+    $('#slack_message_form').hide();
+  }
+});
+
+function submit_message(): void {
+  let message = $("#slack_message_input").val();
+  if(posting || message == "") return;
+
+  posting = true;
+  post_message (message, (err) => {
+    posting = false;
+    if(err) console.log(err);
+    else {
+      $("#slack_message_input").val("");
+      $("#slack_message_form").hide();
+    }
+  });
+}
+
+function delete_message(tr_id: string, message: {}, team_name: string, ch_name: string): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
-  let tr_id: string = "#id_tr_" + pre_message["ts"].replace(".", "") + "_" + team_name + "_" + ch_name;
-  let message_tr = $(tr_id);
+  let message_tr = $("#" + tr_id);
 
   message_tr.remove();
 
@@ -106,11 +139,10 @@ function create_attachment_message(attachments: {}): string {
   return main_dom.prop('outerHTML');
 }
 
-function update_message(message: {}, user_list: {}, emoji_list: {}): number {
+function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
-  let message_id: string = "#id_" + pre_message["ts"].replace(".", "");
-  let message_form = $(message_id);
+  let message_form = $("#" + message_id);
 
   current_message["text"] += "<span style='font-size: small; color: #aaaaaa;'> (edited)</span>";
   let edited_message = message_escape(current_message["text"], user_list, emoji_list);
@@ -229,10 +261,16 @@ for(var i in rtms){
       get_team_info(token, team_info);
     let team_name: string = team_info["team"]["name"];
 
+    let ts: string = message["ts"];
+    let id_base = ts.replace(".", "") + "_" + team_name + "_" + channel_name;
+    let tr_id = "id_tr_" + id_base;
+    let text_id = "text_" + id_base;
+    let button_id = "button_" + id_base;
+
     if(message["subtype"] == "message_deleted") {
-      return delete_message(message, team_name, channel_name);
+      return delete_message(tr_id, message, team_name, channel_name);
     } else if(message["subtype"] == "message_changed") {
-      return update_message(message, user_list, emoji_list);
+      return update_message(text_id, message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
         image = ""
@@ -251,7 +289,6 @@ for(var i in rtms){
     }
     let text: string = extract_text(message, user_list, emoji_list);
     let table = $("#main_table");
-    let ts: string = message["ts"];
 
     let ts_date: Date = new Date(new Date(Number(ts)*1000));
     let ts_hour: string = ts_date.getHours().toString();
@@ -269,21 +306,46 @@ for(var i in rtms){
         link = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
     }
 
+
     let image_column: string = "<td><img src='" + image  + "' /></td>";
     let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + color + "'>#" + channel_name + "</span></b></a> ";
-    if(tokens.length > 1)
+    if(tokens.length > 1) {
       text_column += "(" + team_name + ") ";
-    text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span><br>";
-    text_column += "<span id='id_" + ts.replace(".", "") + "' class='message'> "+ text + "</span></td>";
+    }
+    text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
+    text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button'></span><br>";
+    text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></td>";
 
     let style: string = "";
     if(show_one_channel && (team_name != team_to_show || channel_name != ch_to_show))
       style = "display: none";
-    let record: string = "<tr id='id_tr_" + ts.replace(".", "") + "_" + team_name + "_" + channel_name +
+    let record: string = "<tr id='" + tr_id +
       "' style='" + style + "'>"+ image_column + text_column + "</tr>";
     table.prepend(record);
 
-    if (mark_read_flag) {
+    var button = $("#" + button_id);
+    $("#" + button_id).click(function() {
+      let display_channel = channel ? ("#" + channel_name) : ("DM to " + nick);
+      $("#slack_message_form").show();
+
+      $("#slack_message_channel").html(display_channel);
+      $("#slack_message_channel").css("color", color);
+      $("#slack_message_input").focus();
+
+      post_message = function(text, on_finish){
+        if(channel){
+          web.chat.postMessage (message["channel"], text, { "as_user": true }, function(err, info){
+            on_finish(err);
+          });
+        }else{
+          web.chat.postMessage ("@" + nick, text, { "as_user": true }, function(err, info){
+            on_finish(err);
+          });
+        }
+      };
+    });
+
+    if (channel && mark_read_flag) {
       channel_mark(message["channel"], ts, web);
     }
   });
