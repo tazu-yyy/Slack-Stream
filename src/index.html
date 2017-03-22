@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.6/assets/css/emojione.min.css"/>
   </head>
   <body>
+    <div id="slack_message_form" style="display: none">
+      <div class="slack_message_window" style="display: block">
+        <label id="slack_message_channel">Channel</label>
+        <span class="glyphicon glyphicon-remove pull-right slack_message_close" onclick="$('#slack_message_form').hide()"></span>
+        <textarea id="slack_message_input" type="text" class="form-control slack_message_textarea" placeholder="Message" wrap="soft" rows="3"></textarea>
+        <button class="btn btn-default btn-xs pull-right" type="button" onclick="submit_message()">Post</button>
+      </div>
+    </div>
     <table id="main_table" class="table table-striped">
       <tr><th width="40px"></th><td></td></tr>
     </table>
