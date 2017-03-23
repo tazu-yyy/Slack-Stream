@@ -54,7 +54,6 @@ for(var i in rtms){
 }
 
 $("#slack_message_input").keydown(function(e) {
-  console.log("hi");
   if(e.which == 13 && e.altKey){ // Alt + Enter
     let input = $("#slack_message_input");
     input.val(input.val() + "\n");
