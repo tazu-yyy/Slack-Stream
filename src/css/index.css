@@ -34,8 +34,19 @@ a:hover.slack-link {
     border-left: 3px solid #cccccc;
 }
 
-:hover.message-button {
+.inactive_pencil {
+    opacity: 0;
+}
+
+:hover.inactive_pencil {
+    opacity: 1;
+}
+
+:hover.active_pencil {
     opacity: 0.5;
+}
+
+:hover.message-button {
     cursor: pointer;
 }
 

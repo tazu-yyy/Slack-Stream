@@ -21,6 +21,7 @@ let webs = new Array();
 let rtms = new Array();
 
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
+let show_pencils_flag = (localStorage["show_pencils_flag"] == "true")
 let show_one_channel = false;
 
 let post_message;
@@ -121,7 +122,7 @@ function create_attachment_message(attachments: {}): string {
 
   // text
   if(attachments['text']) {
-    main_dom.append(message_escape(attachments['text']));
+    main_dom.append(message_escape(attachments['text'], {}, {}));
   }
 
   // image
@@ -268,9 +269,13 @@ for(var i in rtms){
     let button_id = "button_" + id_base;
 
     if(message["subtype"] == "message_deleted") {
-      return delete_message(tr_id, message, team_name, channel_name);
+      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
+      let pre_tr_id = "id_tr_" + pre_id_base;
+      return delete_message(pre_tr_id, message, team_name, channel_name);
     } else if(message["subtype"] == "message_changed") {
-      return update_message(text_id, message, user_list, emoji_list);
+      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
+      let pre_text_id = "text_" + pre_id_base;
+      return update_message(pre_text_id, message, user_list, emoji_list);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
         image = ""
@@ -313,7 +318,8 @@ for(var i in rtms){
       text_column += "(" + team_name + ") ";
     }
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
-    text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button'></span><br>";
+    let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
+    text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span><br>";
     text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></td>";
 
     let style: string = "";
