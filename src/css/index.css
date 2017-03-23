@@ -74,7 +74,6 @@ a:hover.slack-link {
 }
 
 #slack_message_form {
-    position: fixed;
     top: 0;
     left: 0;
     right: 0;

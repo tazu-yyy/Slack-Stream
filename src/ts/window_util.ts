@@ -84,3 +84,11 @@ window.addEventListener('contextmenu', function (e) {
     e.preventDefault();
     menu.popup(remote.getCurrentWindow());
 }, false);
+
+require('electron').ipcRenderer.on('activate_message_form', () => {
+	let message_button = $('.message-button').get(0);
+	if(message_button) {
+		message_button.click();
+		$('#slack_message_input').focus();
+	}
+});

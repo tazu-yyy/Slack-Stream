@@ -2,6 +2,7 @@ const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
 const app = electron.app;
+const globalShortcut = electron.globalShortcut;
 const BrowserWindow = electron.BrowserWindow;
 const info_path = path.join(app.getPath("userData"), "bounds-info.json");
 
@@ -29,7 +30,13 @@ function createWindow () {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', function(){
+  globalShortcut.register('ctrl+alt+Enter', function(){
+    mainWindow.focus();
+    mainWindow.webContents.send('activate_message_form');
+  });
+  createWindow();
+});
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()}

@@ -53,11 +53,12 @@ for(var i in rtms){
   });
 }
 
-$("#slack_message_input").keypress(function(e) {
+$("#slack_message_input").keydown(function(e) {
+  console.log("hi");
   if(e.which == 13 && e.altKey){ // Alt + Enter
     let input = $("#slack_message_input");
     input.val(input.val() + "\n");
-  }else if(e.which == 13){ // Enter
+  } else if(e.which == 13 && !e.shiftKey) { // Enter
     e.preventDefault();
     submit_message();
   } 
@@ -72,6 +73,7 @@ $("#slack_message_input").keyup(function(e) {
 function submit_message(): void {
   let message = $("#slack_message_input").val();
   if(posting || message == "") return;
+  $("#slack_message_input").prop('disabled', true);
 
   posting = true;
   post_message (message, (err) => {
@@ -81,6 +83,7 @@ function submit_message(): void {
       $("#slack_message_input").val("");
       $("#slack_message_form").hide();
     }
+    $("#slack_message_input").prop('disabled', false);
   });
 }
 
