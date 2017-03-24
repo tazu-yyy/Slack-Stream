@@ -97,18 +97,29 @@ function delete_message(tr_id: string, message: {}, team_name: string, ch_name: 
 }
 
 function create_attachment_message(attachments: {}): string {
+  let ret_string = '';
   let main_dom = $('<div></div>').addClass('div-attachment pull-left');
 
   // author
   let author_dom = $('<span></span>').addClass('attachment-author');
-  if(attachments['author_icon']) author_dom.html('<img src="' + attachments['author_icon'] + '" />');
+  if(attachments['author_icon']) author_dom.html('<img src="' + attachments['author_icon'] + '" height="15px" />');
   if(attachments['author_link']) {
     let author_name_dom = $('<span></span>').addClass('attachment-author-name');
     if (attachments['author_link']) {
       author_name_dom = $('<a></a>').attr('href', attachments['author_link']).addClass('attachment-author-name');
     }
-    author_name_dom.text(attachments['name']);
+    author_name_dom.text(attachments['author_name']);
     author_dom.append(author_name_dom);
+
+    if(attachments['author_subname']) {
+      let author_subname_dom = $('<span></span>').addClass('attachment-author-subname');
+      if (attachments['author_link']) {
+        author_subname_dom = $('<a></a>').attr('href', attachments['author_link']).addClass('attachment-author-subname');
+      }
+      author_subname_dom.text(attachments['author_subname']);
+      author_dom.append(author_subname_dom);
+    }
+
     main_dom.append(author_dom);
   }
 
@@ -132,14 +143,37 @@ function create_attachment_message(attachments: {}): string {
     let image_dom = $('<div style="width: 100%;"></div>').addClass('attachment-image');
     image_dom.html('<img src="' + attachments['image_url'] + '" width="100%" />');
     main_dom.append(image_dom);
+    ret_string = main_dom.prop('outerHTML');
   } else if (attachments['thumb_url']) {
     let thumb_dom = $('<div style="width: 20%;"></div>').addClass('pull-right');
     let width = 'width="100%"', height = "";
     thumb_dom.html('<img src="' + attachments['thumb_url'] + '" ' + width + ' ' + height + '/>');
     main_dom.attr('style', 'width: 75%;');
-    return main_dom.prop('outerHTML') + thumb_dom.prop('outerHTML');
+    ret_string = main_dom.prop('outerHTML') + thumb_dom.prop('outerHTML');
+  } else {
+    ret_string = main_dom.prop('outerHTML');
   }
-  return main_dom.prop('outerHTML');
+
+  // footer
+  if(attachments['footer']) {
+    let footer_dom = $('<div></div>').addClass('attachment-footer');
+    if(attachments['footer_icon']) {
+      let footer_icon_dom = $('<span></span>');
+      footer_icon_dom.html('<img src="' + attachments['footer_icon'] + '" height="15px" />');
+      footer_dom.append(footer_icon_dom);
+    }
+
+    let footer_name_dom = $('<span></span>').text(attachments['footer']).addClass('attachment-footer-name');
+    footer_dom.append(footer_name_dom);
+
+    let footer_ts_dom = $('<a></a>').attr('href', attachments['from_url']).addClass('attachment-footer-ts');
+    footer_ts_dom.text(new Date(attachments["ts"] * 1000).toLocaleString());
+    footer_dom.append(footer_ts_dom);
+
+    ret_string += footer_dom.prop('outerHTML');
+  }
+
+  return ret_string;
 }
 
 function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}): number {

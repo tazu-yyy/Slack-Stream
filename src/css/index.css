@@ -97,3 +97,31 @@ a:hover.slack-link {
     opacity: 0.5;
     cursor: pointer;
 }
+
+.attachment-author-name {
+    font-weight: bold;
+    color: #000000;
+    padding-left: 5px;
+    padding-right: 5px;
+    vertical-align: middle;
+}
+
+.attachment-author-subname {
+    color: #999999;
+}
+
+.attachment-footer {
+    padding-left: 10px;
+    border-left: 3px solid #cccccc;
+    font-size: smaller;
+    color: #999999;
+}
+
+.attachment-footer-ts {
+    padding-left: 5px;
+    color: #999999;
+}
+
+.attachment-footer-name {
+    padding-left: 3px;
+}
