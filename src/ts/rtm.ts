@@ -333,7 +333,7 @@ for(var i in rtms){
 
     let shared_file_image_id;
     if(!!message["file"] && message["file"]["mimetype"].indexOf("image") != -1) { // file_shared
-      shared_file_image_id = Math.random().toString(36).slice(-8);
+      shared_file_image_id = message["file"]["id"];
       text += "<img id='" + shared_file_image_id + "' src='' />";
     }
 
