@@ -1,1 +1,4 @@
-var tokens: string[] = [''];
+var tokens: string[] = [
+    'xoxp-123456789', // token for team 1
+    'xoxp-987654321', // token for team 2
+    ];
