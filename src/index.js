@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const app = electron.app;
 const globalShortcut = electron.globalShortcut;
+const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 const info_path = path.join(app.getPath("userData"), "bounds-info.json");
 
@@ -35,6 +36,11 @@ app.on('ready', function(){
     mainWindow.focus();
     mainWindow.webContents.send('activate_message_form');
   });
+
+  ipcMain.on('attention', function(){
+    mainWindow.flashFrame(true);
+  });
+
   createWindow();
 });
 app.on('window-all-closed', function () {

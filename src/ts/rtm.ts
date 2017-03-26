@@ -6,6 +6,7 @@
 let slack_sdk_path: string = '@slack/client';
 
 let user_lists = new Array();
+let user_id = "";
 let channel_lists = new Array();
 let bot_lists = new Array();
 let emoji_lists = new Array();
@@ -16,12 +17,14 @@ let RtmClient = slack.RtmClient;
 let RTM_EVENTS = slack.RTM_EVENTS;
 let CLIENT_EVENTS = slack.CLIENT_EVENTS;
 let WebClient = slack.WebClient;
+let ipcRenderer = require( 'electron' ).ipcRenderer;
 let marked = require("marked");
 let webs = new Array();
 let rtms = new Array();
 
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
 let show_pencils_flag = (localStorage["show_pencils_flag"] == "true")
+let submit_channel_index = 0;
 let show_one_channel = false;
 
 let post_message;
@@ -30,6 +33,8 @@ let posting = false;
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
   rtms[i].start();
+
+
   webs[i] = new WebClient(tokens[i]);
 
   channel_lists[i] = {};
@@ -53,7 +58,29 @@ for(var i in rtms){
   });
 }
 
+function click_message_button(message_button) {
+  if(message_button) {
+    message_button.click();
+    $('#slack_message_input').focus();
+  }
+}
+
 $("#slack_message_input").keydown(function(e) {
+  if(e.which == 38 && e.ctrlKey) {
+    submit_channel_index = Math.max(submit_channel_index - 1, 0);
+    click_message_button($('.message-button').get(submit_channel_index));
+  }
+
+  if(e.which == 40 && e.ctrlKey) {
+    submit_channel_index++;
+    let message_button = $('.message-button').get(submit_channel_index);
+    if(message_button) {
+      click_message_button($('.message-button').get(submit_channel_index));
+    } else {
+      submit_channel_index--;
+    }
+  }
+
   if(e.which == 13 && e.altKey){ // Alt + Enter
     let input = $("#slack_message_input");
     input.val(input.val() + "\n");
@@ -86,13 +113,10 @@ function submit_message(): void {
   });
 }
 
-function delete_message(tr_id: string, message: {}, team_name: string, ch_name: string): number {
-  let pre_message: {} = message["previous_message"];
-  let current_message: {} = message["message"];
+function delete_message(tr_id: string): number {
   let message_tr = $("#" + tr_id);
 
   message_tr.remove();
-
   return 0;
 }
 
@@ -135,7 +159,7 @@ function create_attachment_message(attachments: {}): string {
 
   // text
   if(attachments['text']) {
-    main_dom.append(message_escape(attachments['text'], {}, {}));
+    main_dom.append(message_escape(attachments['text'], {}, {}, ''));
   }
 
   // image
@@ -176,13 +200,13 @@ function create_attachment_message(attachments: {}): string {
   return ret_string;
 }
 
-function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}): number {
+function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}, user_id): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
   let message_form = $("#" + message_id);
 
   current_message["text"] += "<span style='font-size: small; color: #aaaaaa;'> (edited)</span>";
-  let edited_message = message_escape(current_message["text"], user_list, emoji_list);
+  let edited_message = message_escape(current_message["text"], user_list, emoji_list, user_id);
   if(current_message["attachments"]) {
     edited_message += create_attachment_message(current_message["attachments"][0]);
   }
@@ -205,13 +229,16 @@ function url_to_html(m: string): string {
   return message;
 }
 
-function user_to_html(m: string, user_list: {}): string {
+function user_to_html(m: string, user_list: {}, user_id: string): string {
   let message: string = m;
   
   message = message.replace(/<@([^>]+)>/g, function (user) {
-      let short_user: string = user.replace(/\|[^>]+/g, "");
-      let name: string = "@" + user_list[short_user.substr(2, short_user.length - 3)].name;
-      return name;
+    let short_user: string = user.replace(/\|[^>]+/g, "");
+    if(user_id == short_user.substr(2, short_user.length - 3)) {
+      ipcRenderer.send('attention');
+    }
+    let name: string = "@" + user_list[short_user.substr(2, short_user.length - 3)].name;
+    return name;
   });
 
   message = message.replace(/<!([^>]+)>/g, function(special) {
@@ -244,11 +271,11 @@ function convert_emoji(m: string, emoji_list: {}): string {
   });
 }
 
-function message_escape(m: string, user_list: {}, emoji_list: {}): string {
+function message_escape(m: string, user_list: {}, emoji_list: {}, user_id: string): string {
   let message: string = m;
   message = url_to_html(message);
   message = mail_to_html(message);
-  message = user_to_html(message, user_list);
+  message = user_to_html(message, user_list, user_id);
   message = marked(message);
   message = newline_to_html(message);
   message = convert_emoji(message, emoji_list);
@@ -264,14 +291,14 @@ function channel_mark (channel, timestamp, web) {
   });
 }
 
-function extract_text(message: any, user_list: {}, emoji_list: {}): string {
+function extract_text(message: any, user_list: {}, emoji_list: {}, user_id: string): string {
   if(message["text"]) {
-    return message_escape(message["text"], user_list, emoji_list);
+    return message_escape(message["text"], user_list, emoji_list, user_id);
   } else if(message["attachments"]) {
     let attachments: [any] = message["attachments"];
     return attachments.map (attachment => {
-      let text = attachment["text"] ? message_escape(attachment["text"], user_list, emoji_list) : "";
-      let pretext = attachment["pretext"] ? message_escape(attachment["pretext"], user_list, emoji_list) : "";
+      let text = attachment["text"] ? message_escape(attachment["text"], user_list, emoji_list, user_id) : "";
+      let pretext = attachment["pretext"] ? message_escape(attachment["pretext"], user_list, emoji_list, user_id) : "";
       return text + pretext;
     }).reduce((a, b) => a + b);    
   } else {
@@ -290,6 +317,8 @@ for(var i in rtms){
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
     let user: string = "";
+    user_id = rtms[i]["activeUserId"];
+
     let image: string = "";
     let nick: string = "NoName";
     let channel: {} = channel_list[message["channel"]];
@@ -307,11 +336,11 @@ for(var i in rtms){
     if(message["subtype"] == "message_deleted") {
       let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
       let pre_tr_id = "id_tr_" + pre_id_base;
-      return delete_message(pre_tr_id, message, team_name, channel_name);
+      return delete_message(pre_tr_id);
     } else if(message["subtype"] == "message_changed") {
       let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
       let pre_text_id = "text_" + pre_id_base;
-      return update_message(pre_text_id, message, user_list, emoji_list);
+      return update_message(pre_text_id, message, user_list, emoji_list, user_id);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
         image = ""
@@ -328,7 +357,7 @@ for(var i in rtms){
       image = user["profile"]["image_32"];
       nick = user["name"];
     }
-    let text: string = extract_text(message, user_list, emoji_list);
+    let text: string = extract_text(message, user_list, emoji_list, user_id);
     let table = $("#main_table");
 
     let shared_file_image_id;

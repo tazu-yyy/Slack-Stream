@@ -25,9 +25,6 @@ function get_bot_info(id:string, token: string, bot_list: {}) {
         success: function (data) {
             if (data["ok"]) {
                 let bot = data["bot"];
-                //console.log("data, bot");
-                //console.log(data);
-                //console.log(bot);
                 bot_list[bot["id"]] = bot;
             }
         }

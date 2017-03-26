@@ -22,38 +22,38 @@ menu.append(new MenuItem({
     checked: show_one_channel,
     click: function(event) {
         show_one_channel = !show_one_channel;
-	let dom = clicked_dom;
+        let dom = clicked_dom;
 
-	while(true) {
-	    // outside of table is clicked
-	    if(!dom.parentNode)
-		break;
+        while(true) {
+            // outside of table is clicked
+            if(!dom.parentNode)
+            break;
 
-	    if(!!dom.id && dom.id.indexOf("id_tr_") != -1){
-		// dom.id: "id_tr_time_teamname_chname"
-		team_to_show = dom.id.split("_")[3];
-		ch_to_show = dom.id.split("_")[4];
-		break;
-	    }
-	    else {
-		dom = dom.parentNode;
-	    }
-	}
+            if(!!dom.id && dom.id.indexOf("id_tr_") != -1){
+                // dom.id: "id_tr_time_teamname_chname"
+                team_to_show = dom.id.split("_")[3];
+                ch_to_show = dom.id.split("_")[4];
+                break;
+            }
+            else {
+                dom = dom.parentNode;
+            }
+        }
 
-	let trs = $("tr");
-	for(var i=0; i<trs.length; i++){
-	    if(!trs[i].id)
-		continue;
+        let trs = $("tr");
+        for(var i=0; i<trs.length; i++){
+            if(!trs[i].id)
+                continue;
 
-	    if(trs[i].id.indexOf(team_to_show) == -1 || trs[i].id.indexOf(ch_to_show) == -1){
-		if(show_one_channel) {
-		    trs[i].style.display = "none";
-		}
-		else {
-		    trs[i].style.display = "";
-		}
-	    }
-	}
+            if(trs[i].id.indexOf(team_to_show) == -1 || trs[i].id.indexOf(ch_to_show) == -1){
+                if(show_one_channel) {
+                    trs[i].style.display = "none";
+                }
+                else {
+                    trs[i].style.display = "";
+                }
+            }
+        }
     }
 }));
 
@@ -67,13 +67,13 @@ menu.append(new MenuItem({
 
         if(show_pencils_flag) {
             $('.message-button').each(function(){
-		$(this).addClass('active_pencil');
-		$(this).removeClass('inactive_pencil');
+                $(this).addClass('active_pencil');
+                $(this).removeClass('inactive_pencil');
             });
         } else {
             $('.message-button').each(function(){
-		$(this).addClass('inactive_pencil');
-		$(this).removeClass('active_pencil');
+                $(this).addClass('inactive_pencil');
+                $(this).removeClass('active_pencil');
             });
         }
     }
@@ -87,8 +87,9 @@ window.addEventListener('contextmenu', function (e) {
 
 require('electron').ipcRenderer.on('activate_message_form', () => {
     let message_button = $('.message-button').get(0);
+    submit_channel_index = 0;
     if(message_button) {
-	message_button.click();
-	$('#slack_message_input').focus();
+        message_button.click();
+        $('#slack_message_input').focus();
     }
 });
