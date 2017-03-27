@@ -99,6 +99,16 @@ menu.append(new MenuItem({
     }
 }));
 
+menu.append(new MenuItem({
+    label: 'attention by keywords',
+    type: 'checkbox',
+    checked: attention_flag,
+    click: function() {
+        attention_flag = !attention_flag;
+        localStorage["attention_flag"] = attention_flag;
+    }
+}));
+
 window.addEventListener('contextmenu', function (e) {
     clicked_dom = e.target;
     e.preventDefault();

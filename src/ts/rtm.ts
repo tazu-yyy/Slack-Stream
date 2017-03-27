@@ -23,6 +23,7 @@ let rtms = new Array();
 
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
 let show_pencils_flag = (localStorage["show_pencils_flag"] == "true");
+let attention_flag = (localStorage["attention_flag"] == "true");
 
 let show_team_name_flag = true;
 if(localStorage["show_team_name_flag"] == "false") {
@@ -236,7 +237,7 @@ function user_to_html(m: string, user_list: {}, user_id: string): string {
   
   message = message.replace(/<@([^>]+)>/g, function (user) {
     let short_user: string = user.replace(/\|[^>]+/g, "");
-    if(user_id == short_user.substr(2, short_user.length - 3)) {
+    if(attention_flag && user_id == short_user.substr(2, short_user.length - 3)) {
       ipcRenderer.send('attention');
     }
     let name: string = "@" + user_list[short_user.substr(2, short_user.length - 3)].name;
