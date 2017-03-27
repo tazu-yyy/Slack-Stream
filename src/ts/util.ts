@@ -57,9 +57,9 @@ function get_image(image_url: string, token: string, tag_id: string, mime: strin
     request.setRequestHeader("Authorization", "Bearer " + token);
 
     request.onreadystatechange = function(){
-	let image_base64 = new Buffer(this.response).toString('base64');
-	$("#" + tag_id)[0]["src"] = "data:" + mime + ";base64," + image_base64;
-    }
+        let image_base64 = new Buffer(this.response).toString('base64');
+        $("#" + tag_id)[0]["src"] = "data:" + mime + ";base64," + image_base64;
+    };
 
     request.send();
 }
