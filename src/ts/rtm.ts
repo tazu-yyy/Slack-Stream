@@ -178,6 +178,7 @@ function create_attachment_message(attachments: {}): string {
     main_dom.attr('style', 'width: 75%;');
     ret_string = main_dom.prop('outerHTML') + thumb_dom.prop('outerHTML');
   } else {
+    main_dom.attr('style', 'width: 100%;');
     ret_string = main_dom.prop('outerHTML');
   }
 
