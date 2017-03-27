@@ -125,3 +125,7 @@ a:hover.slack-link {
 .attachment-footer-name {
     padding-left: 3px;
 }
+
+.inactive-team-name {
+    display: none;
+}

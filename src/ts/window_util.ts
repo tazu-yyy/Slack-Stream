@@ -79,6 +79,26 @@ menu.append(new MenuItem({
     }
 }));
 
+menu.append(new MenuItem({
+    label: 'show team name',
+    type: 'checkbox',
+    checked: show_team_name_flag,
+    click: function() {
+        show_team_name_flag = !show_team_name_flag;
+        localStorage["show_team_name_flag"] = show_team_name_flag;
+
+        if(show_team_name_flag) {
+            $('.span-team-name').each(function() {
+                $(this).removeClass('inactive-team-name');
+            });
+        } else {
+            $('.span-team-name').each(function() {
+                $(this).addClass('inactive-team-name');
+            });
+        }
+    }
+}));
+
 window.addEventListener('contextmenu', function (e) {
     clicked_dom = e.target;
     e.preventDefault();

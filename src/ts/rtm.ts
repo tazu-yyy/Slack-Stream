@@ -6,7 +6,6 @@
 let slack_sdk_path: string = '@slack/client';
 
 let user_lists = new Array();
-let user_id = "";
 let channel_lists = new Array();
 let bot_lists = new Array();
 let emoji_lists = new Array();
@@ -23,7 +22,13 @@ let webs = new Array();
 let rtms = new Array();
 
 let mark_read_flag = (localStorage["mark_read_flag"] == "true");
-let show_pencils_flag = (localStorage["show_pencils_flag"] == "true")
+let show_pencils_flag = (localStorage["show_pencils_flag"] == "true");
+
+let show_team_name_flag = true;
+if(localStorage["show_team_name_flag"] == "false") {
+  show_team_name_flag = false;
+}
+
 let submit_channel_index = 0;
 let show_one_channel = false;
 
@@ -33,13 +38,10 @@ let posting = false;
 for(var i in tokens){
   rtms[i] = new RtmClient(tokens[i], {logLevel: 'debug'});
   rtms[i].start();
-
-
   webs[i] = new WebClient(tokens[i]);
 
   channel_lists[i] = {};
   init_channel_list(tokens[i], channel_lists[i]);
-
 
   user_lists[i] = {};
   init_user_list(tokens[i], user_lists[i]);
@@ -317,7 +319,7 @@ for(var i in rtms){
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
     let user: string = "";
-    user_id = rtms[i]["activeUserId"];
+    let user_id = this["activeUserId"];
 
     let image: string = "";
     let nick: string = "NoName";
@@ -386,7 +388,9 @@ for(var i in rtms){
     let image_column: string = "<td><img src='" + image  + "' /></td>";
     let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + color + "'>#" + channel_name + "</span></b></a> ";
     if(tokens.length > 1) {
-      text_column += "(" + team_name + ") ";
+      let team_name_class = 'class="span-team-name"';
+      if(!show_team_name_flag) team_name_class = 'class="span-team-name inactive-team-name"';
+      text_column += "<span " + team_name_class + ">(" + team_name + ")</span> ";
     }
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
