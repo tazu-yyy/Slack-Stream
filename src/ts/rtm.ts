@@ -367,7 +367,7 @@ for(var i in rtms){
     let shared_file_image_id;
     if(!!message["file"] && message["file"]["mimetype"].indexOf("image") != -1) { // file_shared
       shared_file_image_id = message["file"]["id"];
-      text += "<img id='" + shared_file_image_id + "' src='' style='max-width: 100%;'/>";
+      text += "<a><img id='" + shared_file_image_id + "' src='' style='max-width: 100%;'/></a>";
     }
 
     let ts_date: Date = new Date(new Date(Number(ts)*1000));
@@ -408,6 +408,7 @@ for(var i in rtms){
 
     if(!!shared_file_image_id) {
       get_image(get_maximum_thumbnail(message["file"]), token, shared_file_image_id, message["file"]["mimetype"]);
+      $(`#${shared_file_image_id}`).closest('a').attr('href', message['file']['url_private']);
     }
 
     var button = $("#" + button_id);
