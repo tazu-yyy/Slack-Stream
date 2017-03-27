@@ -332,7 +332,7 @@ for(var i in rtms){
     let team_name: string = team_info["team"]["name"];
 
     let ts: string = message["ts"];
-    let id_base = ts.replace(".", "") + "_" + team_name + "_" + channel_name;
+    let id_base = ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
     let tr_id = "id_tr_" + id_base;
     let text_id = "text_" + id_base;
     let button_id = "button_" + id_base;
