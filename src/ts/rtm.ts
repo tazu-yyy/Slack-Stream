@@ -87,7 +87,7 @@ $("#slack_message_input").keydown(function(e) {
   if(e.which == 13 && e.altKey){ // Alt + Enter
     let input = $("#slack_message_input");
     input.val(input.val() + "\n");
-  } else if(e.which == 13 && !e.shiftKey) { // Enter
+  } else if(e.which == 13 && !e.shiftKey && $('.textcomplete-dropdown').css("display") == "none") { // Enter
     e.preventDefault();
     submit_message();
   } 
