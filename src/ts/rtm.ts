@@ -354,7 +354,7 @@ for(var i in rtms){
           get_bot_info(message["bot_id"], token, bot_list);
         user = bot_list[message["bot_id"]];
         image = user["icons"]["image_36"];
-        nick = message["username"];
+        nick = message["username"] || bot_list[message['bot_id']]['name']
       }
     } else {
       user = user_list[message["user"]];
