@@ -414,6 +414,10 @@ for(var i in rtms){
     var button = $("#" + button_id);
     $("#" + button_id).click(function() {
       let display_channel = channel ? ("#" + channel_name) : ("DM to " + nick);
+
+      if(show_team_name_flag)
+        display_channel += (" (" + team_name + ")");
+
       $("#slack_message_form").show();
 
       $("#slack_message_channel").html(display_channel);
