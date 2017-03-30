@@ -297,7 +297,11 @@ function channel_mark (channel, timestamp, web) {
 
 function extract_text(message: any, user_list: {}, emoji_list: {}, user_id: string): string {
   if(message["text"]) {
-    return message_escape(message["text"], user_list, emoji_list, user_id);
+    let m = message_escape(message["text"], user_list, emoji_list, user_id);
+    if(message["attachments"]) {
+      m += create_attachment_message(message["attachments"][0]);
+    }
+    return m;
   } else if(message["attachments"]) {
     let attachments: [any] = message["attachments"];
     return attachments.map (attachment => {
