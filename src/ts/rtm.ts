@@ -204,7 +204,7 @@ function create_attachment_message(attachments: {}): string {
   return ret_string;
 }
 
-function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}, user_id): number {
+function update_message(message_id: string, message: {}, user_list: {}, emoji_list: {}, user_id: string, token: string): number {
   let pre_message: {} = message["previous_message"];
   let current_message: {} = message["message"];
   let message_form = $("#" + message_id);
@@ -214,8 +214,16 @@ function update_message(message_id: string, message: {}, user_list: {}, emoji_li
   if(current_message["attachments"]) {
     edited_message += create_attachment_message(current_message["attachments"][0]);
   }
+  if(!!current_message["file"] && current_message["file"]["mimetype"].indexOf("image") != -1) { // file_shared
+    edited_message += "<a><img id='" + current_message["file"]["id"] + "' src='' style='max-width: 100%;'/></a>";
+  }
 
   message_form.html(edited_message);
+
+  if(!!current_message["file"]){
+    get_image(get_maximum_thumbnail(current_message["file"]), token, current_message["file"]["id"], current_message["file"]["mimetype"]);
+  }
+
   return 0;
 }
 
@@ -348,7 +356,7 @@ for(var i in rtms){
     } else if(message["subtype"] == "message_changed") {
       let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
       let pre_text_id = "text_" + pre_id_base;
-      return update_message(pre_text_id, message, user_list, emoji_list, user_id);
+      return update_message(pre_text_id, message, user_list, emoji_list, user_id, token);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
         image = ""
