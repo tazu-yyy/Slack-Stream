@@ -350,11 +350,11 @@ for(var i in rtms){
     let button_id = "button_" + id_base;
 
     if(message["subtype"] == "message_deleted") {
-      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
+      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
       let pre_tr_id = "id_tr_" + pre_id_base;
       return delete_message(pre_tr_id);
     } else if(message["subtype"] == "message_changed") {
-      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name + "_" + channel_name;
+      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
       let pre_text_id = "text_" + pre_id_base;
       return update_message(pre_text_id, message, user_list, emoji_list, user_id, token);
     } else if(message["subtype"] == "bot_message") {
