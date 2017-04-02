@@ -215,7 +215,7 @@ function update_message(message_id: string, message: {}, user_list: {}, emoji_li
     edited_message += create_attachment_message(current_message["attachments"][0]);
   }
   if(!!current_message["file"] && current_message["file"]["mimetype"].indexOf("image") != -1) { // file_shared
-    edited_message += "<a><img id='" + current_message["file"]["id"] + "' src='' style='max-width: 100%;'/></a>";
+    edited_message += "<a href='" + current_message["file"]["url_private"] + "'><img id='" + current_message["file"]["id"] + "' src='' style='max-width: 100%;'/></a>";
   }
 
   message_form.html(edited_message);
@@ -379,7 +379,7 @@ for(var i in rtms){
     let shared_file_image_id;
     if(!!message["file"] && message["file"]["mimetype"].indexOf("image") != -1) { // file_shared
       shared_file_image_id = message["file"]["id"];
-      text += "<a><img id='" + shared_file_image_id + "' src='' style='max-width: 100%;'/></a>";
+      text += "<a href='" + message["file"]["url_private"] + "'><img id='" + shared_file_image_id + "' src='' style='max-width: 100%;'/></a>";
     }
 
     let ts_date: Date = new Date(new Date(Number(ts)*1000));
@@ -420,7 +420,6 @@ for(var i in rtms){
 
     if(!!shared_file_image_id) {
       get_image(get_maximum_thumbnail(message["file"]), token, shared_file_image_id, message["file"]["mimetype"]);
-      $(`#${shared_file_image_id}`).closest('a').attr('href', message['file']['url_private']);
     }
 
     var button = $("#" + button_id);
