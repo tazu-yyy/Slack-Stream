@@ -12,6 +12,7 @@ function init_data_from_api(api_url:string, token:string, success_func, paramete
         type: "GET",
         url: api_url,
         data: "token=" + token + params,
+	async: false,
         success: success_func
     });
     return 0;
