@@ -348,6 +348,7 @@ for(var i in rtms){
     let tr_id = "id_tr_" + id_base;
     let text_id = "text_" + id_base;
     let button_id = "button_" + id_base;
+    let del_id = "del_" + id_base;
 
     if(message["subtype"] == "message_deleted") {
       let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
@@ -408,7 +409,8 @@ for(var i in rtms){
     }
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
-    text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span><br>";
+    text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span>";
+    text_column += " <span style='float: right' id='" + del_id + "' class='glyphicon glyphicon-remove' /><br>";
     text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></td>";
 
     let style: string = "";
@@ -446,6 +448,11 @@ for(var i in rtms){
           });
         }
       };
+    });
+
+    var del = $("#" + del_id);
+    $("#" + del_id).click(function(){
+      web.chat.delete(ts, message["channel"], { "as_user": true });
     });
 
     if (channel && mark_read_flag) {
