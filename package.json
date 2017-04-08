@@ -18,7 +18,8 @@
     "gulp-uglify": "^2.0.0",
     "@types/node": "^6.0.46",
     "del": "^2.2.2",
-    "typescript": "^2.0.8"
+    "typescript": "^2.0.8",
+    "dateformat": "^2.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

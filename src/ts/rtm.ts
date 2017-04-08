@@ -383,12 +383,8 @@ for(var i in rtms){
       text += "<a href='" + message["file"]["url_private"] + "'><img id='" + shared_file_image_id + "' src='' style='max-width: 100%;'/></a>";
     }
 
-    let ts_date: Date = new Date(new Date(Number(ts)*1000));
-    let ts_hour: string = ts_date.getHours().toString();
-    ts_hour = Number(ts_hour) < 10 ? "0" + ts_hour : ts_hour;
-    let ts_min: string = ts_date.getMinutes().toString();
-    ts_min = Number(ts_min) < 10 ? "0" + ts_min : ts_min;
-    let ts_s: string = ts_hour + ":" + ts_min;
+    let ts_date: Date = new Date(Number(ts)*1000);
+    let ts_s: string = (require('dateformat'))(ts_date, "HH:MM");
 
     let color: string = channel ? channel["color"] : channel_color(nick);
     
