@@ -434,8 +434,7 @@ for(var i in rtms){
       $("#slack_message_input").focus();
 
       post_message = function(text, on_finish){
-        let target = channel ? message["channel"] : ("@" + nick);
-        web.chat.postMessage (target, text, { "as_user": true, "link_names": 1 }, function(err, info){
+        web.chat.postMessage (message["channel"], text, { "as_user": true, "link_names": 1 }, function(err, info){
           on_finish(err);
         });
       };
