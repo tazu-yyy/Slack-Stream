@@ -338,6 +338,10 @@ for(var i in rtms){
     let image: string = "";
     let nick: string = "NoName";
     let channel: {} = channel_list[message["channel"]];
+    if(!channel) { // if channel is none, fetch the chennel list again in case there is a new one
+      init_channel_list(token, channel_list);
+      channel = channel_list[message["channel"]];
+    }
     let channel_name: string = channel ? channel["name"] : "DM";
     if(!team_info["team"])
       get_team_info(token, team_info);
