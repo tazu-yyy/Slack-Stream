@@ -332,9 +332,7 @@ for(var i in rtms){
   let team_info = {};
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
-    let user: string = "";
-    let user_id = this["activeUserId"];
-
+    let my_user_id = this["activeUserId"];
     let image: string = "";
     let nick: string = "NoName";
     let channel: {} = channel_list[message["channel"]];
@@ -357,7 +355,7 @@ for(var i in rtms){
     } else if(message["subtype"] == "message_changed") {
       let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
       let pre_text_id = "text_" + pre_id_base;
-      return update_message(pre_text_id, message, user_list, emoji_list, user_id, token);
+      return update_message(pre_text_id, message, user_list, emoji_list, my_user_id, token);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
         image = ""
@@ -365,16 +363,16 @@ for(var i in rtms){
       } else { // Normal bots
         if(!bot_list[message["bot_id"]])
           get_bot_info(message["bot_id"], token, bot_list);
-        user = bot_list[message["bot_id"]];
+        let user: {} = bot_list[message["bot_id"]];
         image = user["icons"]["image_36"];
         nick = message["username"] || bot_list[message['bot_id']]['name']
       }
     } else {
-      user = user_list[message["user"]];
+      let user: {} = user_list[message["user"]];
       image = user["profile"]["image_32"];
       nick = user["name"];
     }
-    let text: string = extract_text(message, user_list, emoji_list, user_id);
+    let text: string = extract_text(message, user_list, emoji_list, my_user_id);
     let table = $("#main_table");
 
     let shared_file_image_id;
@@ -406,7 +404,8 @@ for(var i in rtms){
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
     text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span>";
-    text_column += " <span style='float: right' id='" + del_id + "' class='glyphicon glyphicon-remove' /><br>";
+    if(my_user_id == message["user"])
+      text_column += " <span style='float: right' id='" + del_id + "' class='glyphicon glyphicon-remove' />";
     text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></td>";
 
     let style: string = "";
