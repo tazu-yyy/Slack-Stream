@@ -7,6 +7,7 @@ let slack_sdk_path: string = '@slack/client';
 
 let user_lists = new Array();
 let channel_lists = new Array();
+let im_lists = new Array();
 let bot_lists = new Array();
 let emoji_lists = new Array();
 
@@ -43,7 +44,8 @@ for(var i in tokens){
 
   channel_lists[i] = {};
   init_channel_list(tokens[i], channel_lists[i]);
-
+  im_lists[i] = {}
+  init_im_list(tokens[i], im_lists[i]);
   user_lists[i] = {};
   init_user_list(tokens[i], user_lists[i]);
   emoji_lists[i] = {};
@@ -325,6 +327,7 @@ function extract_text(message: any, user_list: {}, emoji_list: {}, user_id: stri
 for(var i in rtms){
   let user_list:{} = user_lists[i];
   let channel_list:{} = channel_lists[i];
+  let im_list: {} = im_lists[i];
   let bot_list:{} = bot_lists[i];
   let emoji_list:{} = emoji_lists[i];
   let token: string = tokens[i]; 
@@ -335,25 +338,41 @@ for(var i in rtms){
     let my_user_id = this["activeUserId"];
     let image: string = "";
     let nick: string = "NoName";
-    let channel: {} = channel_list[message["channel"]];
-    if(!channel) { // if channel is none, fetch the chennel list again in case there is a new one
+
+    let channel: {} = value_or_retry(channel_list[message["channel"]], function(){
       init_channel_list(token, channel_list);
+      return channel_list[message["channel"]];
+    });
+
+    // if channel is undefined, this is a DM (or a network error, which we don't consider for now)
+    if(!channel) {
+      let im: {} = value_or_retry(im_list[message["channel"]], function(){
+        init_im_list(token, im_list);
+        return im_list[message["channel"]];
+      });
+
+      // insert a fake channel into channe_list so that DMs and normal channels can be treated in the same way
+      channel_list[message["channel"]] = {
+        "name": "DM_to_" + user_list[im["user"]]["name"],
+        "color": channel_color(user_list[im["user"]]["name"])
+      };
       channel = channel_list[message["channel"]];
     }
-    let channel_name: string = channel ? channel["name"] : "DM";
+
+    let channel_name: string = channel["name"];
     if(!team_info["team"])
       get_team_info(token, team_info);
     let team_name: string = team_info["team"]["name"];
 
     let ts: string = message["ts"];
-    let id_base = ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
+    let id_base = ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
     let tr_id = "id_tr_" + id_base;
     let text_id = "text_" + id_base;
     let button_id = "button_" + id_base;
     let del_id = "del_" + id_base;
 
     if(message["subtype"] == "message_deleted") {
-      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
+      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
       let pre_tr_id = "id_tr_" + pre_id_base;
       return delete_message(pre_tr_id);
     } else if(message["subtype"] == "message_changed") {
@@ -388,18 +407,9 @@ for(var i in rtms){
     let ts_date: Date = new Date(Number(ts)*1000);
     let ts_s: string = (require('dateformat'))(ts_date, "HH:MM");
 
-    let color: string = channel ? channel["color"] : channel_color(nick);
-    
-    let link: string = "";
-    if(channel_name == "DM"){
-        link = "slack://user?team=" + team_info["team"]["id"] + "&id=" + message["user"];
-    }else{
-        link = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
-    }
-
-
+    let link: string = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
     let image_column: string = "<td><img src='" + image  + "' /></td>";
-    let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + color + "'>#" + channel_name + "</span></b></a> ";
+    let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + channel["color"] + "'>#" + channel_name + "</span></b></a> ";
     if(tokens.length > 1) {
       let team_name_class = 'class="span-team-name"';
       if(!show_team_name_flag) team_name_class = 'class="span-team-name inactive-team-name"';
@@ -425,7 +435,7 @@ for(var i in rtms){
 
     var button = $("#" + button_id);
     $("#" + button_id).click(function() {
-      let display_channel = channel ? ("#" + channel_name) : ("DM to " + nick);
+      let display_channel = "#" + channel_name;
 
       if(show_team_name_flag)
         display_channel += (" (" + team_name + ")");
@@ -433,7 +443,7 @@ for(var i in rtms){
       $("#slack_message_form").show();
 
       $("#slack_message_channel").html(display_channel);
-      $("#slack_message_channel").css("color", color);
+      $("#slack_message_channel").css("color", channel["color"]);
       $("#slack_message_input").focus();
 
       post_message = function(text, on_finish){

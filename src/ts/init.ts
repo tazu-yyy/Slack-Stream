@@ -55,6 +55,19 @@ function init_channel_list(token: string, channel_list: {}) {
 
 };
 
+function init_im_list(token: string, im_list: {}) {
+    let api_url:string = "https://slack.com/api/im.list";
+
+    init_data_from_api(api_url, token, function (data) {
+        if (data["ok"]) {
+            data["ims"].forEach(function (im) {
+                im_list[im["id"]] = im;
+            });
+            console.log(im_list);
+        }
+    });
+};
+
 function init_emoji_list(token: string, emoji_list: {}) {
     let api_url:string = "https://slack.com/api/emoji.list";
     init_data_from_api(api_url, token, function (data) {
