@@ -116,16 +116,9 @@ window.addEventListener('contextmenu', function (e) {
 }, false);
 
 require('electron').ipcRenderer.on('activate_message_form', () => {
-    let message_buttons = $('.message-button');
-    let message_button;
-
-    for(var i in message_buttons){
-	// Note: should be 'none' but not 'None'
-	if(message_buttons[i].closest('tr').style.display != 'none'){
-	    message_button = message_buttons[i];
-	    break;
-	}
-    }
+    let message_button = $('.message-button').filter(function(){
+	return $(this).closest('tr').css('display') != 'none';
+    })[0];
 
     submit_channel_index = 0;
     if(message_button) {
