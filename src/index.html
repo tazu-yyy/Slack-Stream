@@ -39,5 +39,9 @@
       event.preventDefault();
       shell.openExternal(this.href);
     });
+    document.ondragover = document.ondrop = function(e) {
+      e.preventDefault();
+      return false;
+    };
   </script>
 </html>
