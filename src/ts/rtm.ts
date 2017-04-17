@@ -440,6 +440,41 @@ for(var i in rtms){
       if(show_team_name_flag)
         display_channel += (" (" + team_name + ")");
 
+      $('#slack_message_input').textcomplete('destroy');
+
+      $('#slack_message_input').textcomplete([
+        { // emojis
+          match: /\B:([\-+\w]*)$/,
+          search: function (term, callback) {
+            callback($.map(emojies, function (emoji) {
+              return emoji.indexOf(term) === 0 ? emoji : null;
+            }));
+          },
+          template: function (value) {
+            return `${value} ${emojione.shortnameToImage(":" + value + ":")}`;
+          },
+          replace: function(value){
+            return ':' + value + ': ';
+          },
+          index: 1
+        },
+        { // usernames
+          match: /\B\@([a-zA-Z\.]*)$/,
+          search: function (term, callback) {
+            callback($.map(user_list, function(user){
+              return user["name"].indexOf(term) == 0 && user["name"] != user_list[my_user_id]["name"] ? user["name"] : null;
+            }));
+          },
+          template: function (value) {
+            return "@" + value;
+          },
+          replace: function(value){
+            return '@' + value + ' ';
+          },
+          index: 1
+        },
+      ]);
+
       $("#slack_message_form").show();
 
       $("#slack_message_channel").html(display_channel);

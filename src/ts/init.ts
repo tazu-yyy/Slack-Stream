@@ -81,8 +81,8 @@ function init_emoji_list(token: string, emoji_list: {}) {
     });
 };
 
-$(function(){
-    let emojies = [
+
+let emojies = [
         "bowtie",
         "smile",
         "simple_smile",
@@ -960,23 +960,4 @@ $(function(){
         "small_red_triangle",
         "small_red_triangle_down",
         "shipit",
-    ];
-
-    $('#slack_message_input').textcomplete([
-        {
-            match: /\B:([\-+\w]*)$/,
-            search: function (term, callback) {
-                callback($.map(emojies, function (emoji) {
-                    return emoji.indexOf(term) === 0 ? emoji : null;
-                }));
-            },
-            template: function (value) {
-                return `${value} ${emojione.shortnameToImage(":" + value + ":")}`;
-            },
-            replace: function(value){
-                return ':' + value + ': ';
-            },
-            index: 1
-        }
-    ])
-});
+];
