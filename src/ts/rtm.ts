@@ -506,7 +506,7 @@ for(var i in rtms){
           match: /\B:([\-+\w]*)$/,
           search: function (term, callback) {
             callback($.map(emojies, function (emoji) {
-              return emoji.indexOf(term) === 0 ? emoji : null;
+              return emoji.indexOf(term) != -1 ? emoji : null;
             }));
           },
           template: function (value) {
@@ -521,7 +521,7 @@ for(var i in rtms){
           match: /\B\@([a-zA-Z\.]*)$/,
           search: function (term, callback) {
             callback($.map(user_list, function(user){
-              return user["name"].indexOf(term) == 0 && user["name"] != user_list[my_user_id]["name"] ? user["name"] : null;
+              return user["name"].indexOf(term) != -1 && user["name"] != user_list[my_user_id]["name"] ? user["name"] : null;
             }));
           },
           template: function (value) {
