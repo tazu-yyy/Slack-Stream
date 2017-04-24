@@ -334,6 +334,60 @@ for(var i in rtms){
   let web = webs[i];
   let team_info = {};
 
+  rtms[i].on(RTM_EVENTS.REACTION_ADDED, function(reaction) {
+    //console.log(reaction);
+    if(!team_info["team"]) get_team_info(token, team_info);
+    let item = reaction["item"];
+    let team_name: string = team_info["team"]["name"];
+    let channel: {} = channel_list[item["channel"]];
+    let channel_name: string = channel ? channel["name"] : "DM";
+    let id_base = item["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
+    let tr_id = "id_tr_" + id_base;
+    let reaction_id = "reaction_" + id_base;
+    let reaction_div = $('#' + reaction_id);
+    if(reaction_div.css("display") == "none") {
+      reaction_div.css("display", "");
+    }
+
+    let emoji_class = reaction["reaction"].replace('+', 'plus')
+    if($('#' + tr_id).find('.' + emoji_class).length > 0) {
+      let emoji_dom = $('#' + tr_id).find('.' + emoji_class);
+      let count = emoji_dom.find('.reaction-num').text();
+      emoji_dom.find('.reaction-num').text(Number(count) + 1);
+    } else {
+      let emoji_dom = $("<div></div>").addClass("pull-left reaction-emoji-div " + emoji_class);
+      emoji_dom.html(emojione.shortnameToImage(":" + reaction["reaction"] + ":"));
+      emoji_dom.find('img').css("min-width", "0px");
+      emoji_dom.find('img').css("min-height", "0px");
+      emoji_dom.append(' <span class="reaction-num">1</span>');
+      reaction_div.append(emoji_dom);
+    }
+  });
+
+  rtms[i].on(RTM_EVENTS.REACTION_REMOVED, function(reaction) {
+    //console.log(reaction);
+    if(!team_info["team"]) get_team_info(token, team_info);
+    let item = reaction["item"];
+    let team_name: string = team_info["team"]["name"];
+    let channel: {} = channel_list[item["channel"]];
+    let channel_name: string = channel ? channel["name"] : "DM";
+    let id_base = item["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
+    let tr_id = "id_tr_" + id_base;
+
+    let emoji_class = reaction["reaction"].replace('+', 'plus')
+
+    if($('#' + tr_id).find('.' + emoji_class).length > 0) {
+      let emoji_dom = $('#' + tr_id).find('.' + emoji_class);
+      let count = Number(emoji_dom.find('.reaction-num').text());
+      if(count == 1) {
+        emoji_dom.remove();
+      } else {
+        emoji_dom.find('.reaction-num').text(count - 1);
+      }
+    }
+  });
+
+
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
     let my_user_id = this["activeUserId"];
     let image: string = "";
@@ -368,6 +422,7 @@ for(var i in rtms){
     let id_base = ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
     let tr_id = "id_tr_" + id_base;
     let text_id = "text_" + id_base;
+    let reaction_id = "reaction_" + id_base;
     let button_id = "button_" + id_base;
     let del_id = "del_" + id_base;
 
@@ -409,7 +464,8 @@ for(var i in rtms){
 
     let link: string = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
     let image_column: string = "<td><img src='" + image  + "' /></td>";
-    let text_column: string = "<td><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + channel["color"] + "'>#" + channel_name + "</span></b></a> ";
+    let text_column: string = "<td><div><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + channel["color"] + "'>#" + channel_name + "</span></b></a> ";
+
     if(tokens.length > 1) {
       let team_name_class = 'class="span-team-name"';
       if(!show_team_name_flag) team_name_class = 'class="span-team-name inactive-team-name"';
@@ -417,10 +473,13 @@ for(var i in rtms){
     }
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
+
     text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span>";
     if(my_user_id == message["user"])
       text_column += " <span style='float: right' id='" + del_id + "' class='glyphicon glyphicon-remove' />";
-    text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></td>";
+    text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></div>";
+
+    text_column += `<div id="${reaction_id}" style="display: none;"></div></td>`;
 
     let style: string = "";
     if(show_one_channel && (team_name != team_to_show || channel_name != ch_to_show))

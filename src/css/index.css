@@ -16,11 +16,6 @@ td {
     overflow-wrap: break-word;
 }
 
-.emojione {
-	width: 1em;
-	height: 1em;
-}
-
 a.slack-link {
     text-decoration: none;
 }
@@ -128,4 +123,24 @@ a:hover.slack-link {
 
 .inactive-team-name {
     display: none;
+}
+
+.emojione {
+    width: 1em;
+    height: 1em;
+    margin-right: 0;
+}
+
+.reaction-num {
+    color: #666666;
+    padding-right: 5px;
+    padding-left: 0;
+    font-size: smaller;
+}
+
+.reaction-emoji-div {
+    border: 1px solid #dddddd;
+    border-radius: 0.5em;
+    padding: 1px;
+    margin-right: 5px;
 }
