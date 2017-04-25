@@ -141,6 +141,6 @@ a:hover.slack-link {
 .reaction-emoji-div {
     border: 1px solid #dddddd;
     border-radius: 0.5em;
-    padding: 1px;
     margin-right: 5px;
+    margin-top: -7px;
 }
