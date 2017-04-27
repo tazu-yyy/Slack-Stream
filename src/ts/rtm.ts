@@ -518,7 +518,7 @@ for(var i in rtms){
           index: 1
         },
         { // usernames
-          match: /\B\@([a-zA-Z\.]*)$/,
+          match: /\B\@([_a-zA-Z\.]*)$/,
           search: function (term, callback) {
             callback($.map(user_list, function(user){
               return user["name"].indexOf(term) != -1 && user["name"] != user_list[my_user_id]["name"] ? user["name"] : null;
