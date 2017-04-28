@@ -495,9 +495,15 @@ for(var i in rtms){
     var button = $("#" + button_id);
     $("#" + button_id).click(function() {
       let display_channel = "#" + channel_name;
+      let emoji_this_channel = emojies.concat(); // deep copy: emojies.concat() returns a "new" array that contains "emojies + []"
 
       if(show_team_name_flag)
         display_channel += (" (" + team_name + ")");
+
+      for(var k in emoji_list){
+        emoji_this_channel.push(k);
+      }
+      emoji_this_channel.sort();
 
       $('#slack_message_input').textcomplete('destroy');
 
@@ -505,7 +511,7 @@ for(var i in rtms){
         { // emojis
           match: /\B:([\-+\w]*)$/,
           search: function (term, callback) {
-            callback($.map(emojies, function (emoji) {
+            callback($.map(emoji_this_channel, function (emoji) {
               return emoji.indexOf(term) != -1 ? emoji : null;
             }));
           },
