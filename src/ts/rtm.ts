@@ -324,6 +324,10 @@ function extract_text(message: any, user_list: {}, emoji_list: {}, user_id: stri
   }
 }
 
+function make_id(prefix: string, ts: string, team_name: string, channel_name: string){
+    return prefix + "_" + ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
+}
+
 for(var i in rtms){
   let user_list:{} = user_lists[i];
   let channel_list:{} = channel_lists[i];
@@ -341,9 +345,8 @@ for(var i in rtms){
     let team_name: string = team_info["team"]["name"];
     let channel: {} = channel_list[item["channel"]];
     let channel_name: string = channel ? channel["name"] : "DM";
-    let id_base = item["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
-    let tr_id = "id_tr_" + id_base;
-    let reaction_id = "reaction_" + id_base;
+    let tr_id = make_id("id_tr", item["ts"], team_name, channel_name);
+    let reaction_id = make_id("reaction", item["ts"], team_name, channel_name);
     let reaction_div = $('#' + reaction_id);
     if(reaction_div.css("display") == "none") {
       reaction_div.css("display", "");
@@ -371,8 +374,7 @@ for(var i in rtms){
     let team_name: string = team_info["team"]["name"];
     let channel: {} = channel_list[item["channel"]];
     let channel_name: string = channel ? channel["name"] : "DM";
-    let id_base = item["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
-    let tr_id = "id_tr_" + id_base;
+    let tr_id = make_id("id_tr", item["ts"], team_name, channel_name);
 
     let emoji_class = reaction["reaction"].replace('+', 'plus')
 
@@ -419,20 +421,17 @@ for(var i in rtms){
     let team_name: string = team_info["team"]["name"];
 
     let ts: string = message["ts"];
-    let id_base = ts.replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
-    let tr_id = "id_tr_" + id_base;
-    let text_id = "text_" + id_base;
-    let reaction_id = "reaction_" + id_base;
-    let button_id = "button_" + id_base;
-    let del_id = "del_" + id_base;
+    let tr_id = make_id("id_tr", ts, team_name, channel_name);
+    let text_id = make_id("text", ts, team_name, channel_name);
+    let reaction_id = make_id("reaction", ts, team_name, channel_name);
+    let button_id = make_id("button", ts, team_name, channel_name);
+    let del_id = make_id("del", ts, team_name, channel_name);
 
     if(message["subtype"] == "message_deleted") {
-      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "").replace(/\./g, "");
-      let pre_tr_id = "id_tr_" + pre_id_base;
+      let pre_tr_id = make_id("id_tr", message["previous_message"]["ts"], team_name, channel_name);
       return delete_message(pre_tr_id);
     } else if(message["subtype"] == "message_changed") {
-      let pre_id_base = message["previous_message"]["ts"].replace(".", "") + "_" + team_name.replace(/ /g, "") + "_" + channel_name.replace(/ /g, "");
-      let pre_text_id = "text_" + pre_id_base;
+      let pre_text_id = make_id("text", message["previous_message"]["ts"], team_name, channel_name);
       return update_message(pre_text_id, message, user_list, emoji_list, my_user_id, token);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
