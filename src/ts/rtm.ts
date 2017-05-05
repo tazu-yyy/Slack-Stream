@@ -342,6 +342,7 @@ for(var i in rtms){
     //console.log(reaction);
     if(!team_info["team"]) get_team_info(token, team_info);
     let item = reaction["item"];
+    let user_name = user_list[reaction["user"]]["name"];
     let team_name: string = team_info["team"]["name"];
     let channel: {} = channel_list[item["channel"]];
     let channel_name: string = channel ? channel["name"] : "DM";
@@ -352,16 +353,20 @@ for(var i in rtms){
       reaction_div.css("display", "");
     }
 
-    let emoji_class = reaction["reaction"].replace('+', 'plus')
+    let emoji_class = reaction["reaction"].replace('+', 'plus');
     if($('#' + tr_id).find('.' + emoji_class).length > 0) {
       let emoji_dom = $('#' + tr_id).find('.' + emoji_class);
       let count = emoji_dom.find('.reaction-num').text();
+      let title = emoji_dom.find('img').attr('title');
+      title += " " + user_name;
+      emoji_dom.find('img').attr('title', title);
       emoji_dom.find('.reaction-num').text(Number(count) + 1);
     } else {
       let emoji_dom = $("<div></div>").addClass("pull-left reaction-emoji-div " + emoji_class);
       emoji_dom.html(emojione.shortnameToImage(":" + reaction["reaction"] + ":"));
       emoji_dom.find('img').css("min-width", "0px");
       emoji_dom.find('img').css("min-height", "0px");
+      emoji_dom.find('img').attr('title', user_name);
       emoji_dom.append(' <span class="reaction-num">1</span>');
       reaction_div.append(emoji_dom);
     }
@@ -371,6 +376,7 @@ for(var i in rtms){
     //console.log(reaction);
     if(!team_info["team"]) get_team_info(token, team_info);
     let item = reaction["item"];
+    let user_name = user_list[reaction["user"]]["name"];
     let team_name: string = team_info["team"]["name"];
     let channel: {} = channel_list[item["channel"]];
     let channel_name: string = channel ? channel["name"] : "DM";
@@ -384,6 +390,13 @@ for(var i in rtms){
       if(count == 1) {
         emoji_dom.remove();
       } else {
+        let title: any = emoji_dom.find('img').attr('title').split(' ');
+        if(title.indexOf(user_name) >= 0) {
+          title.splice(title.indexOf(user_name), 1);
+          title = title.join(' ');
+          emoji_dom.find('img').attr('title', title);
+        }
+        emoji_dom.find('img').attr('title', title);
         emoji_dom.find('.reaction-num').text(count - 1);
       }
     }
