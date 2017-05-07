@@ -2,6 +2,7 @@
 /// <reference path="./token.ts" />
 /// <reference path="./util.ts" />
 /// <reference path="./init.ts" />
+/// <reference path="./channel.ts" />
 
 let slack_sdk_path: string = '@slack/client';
 
@@ -344,10 +345,9 @@ for(var i in rtms){
     let item = reaction["item"];
     let user_name = user_list[reaction["user"]]["name"];
     let team_name: string = team_info["team"]["name"];
-    let channel: {} = channel_list[item["channel"]];
-    let channel_name: string = channel ? channel["name"] : "DM";
-    let tr_id = make_id("id_tr", item["ts"], team_name, channel_name);
-    let reaction_id = make_id("reaction", item["ts"], team_name, channel_name);
+    let channel: Channel = new Channel(channel_list, im_list, user_list, item["channel"], token);
+    let tr_id = make_id("id_tr", item["ts"], team_name, channel.name);
+    let reaction_id = make_id("reaction", item["ts"], team_name, channel.name);
     let reaction_div = $('#' + reaction_id);
     if(reaction_div.css("display") == "none") {
       reaction_div.css("display", "");
@@ -378,9 +378,8 @@ for(var i in rtms){
     let item = reaction["item"];
     let user_name = user_list[reaction["user"]]["name"];
     let team_name: string = team_info["team"]["name"];
-    let channel: {} = channel_list[item["channel"]];
-    let channel_name: string = channel ? channel["name"] : "DM";
-    let tr_id = make_id("id_tr", item["ts"], team_name, channel_name);
+    let channel: Channel = new Channel(channel_list, im_list, user_list, item["channel"], token);
+    let tr_id = make_id("id_tr", item["ts"], team_name, channel.name);
 
     let emoji_class = reaction["reaction"].replace('+', 'plus')
 
@@ -407,44 +406,24 @@ for(var i in rtms){
     let my_user_id = this["activeUserId"];
     let image: string = "";
     let nick: string = "NoName";
+    let channel: Channel = new Channel(channel_list, im_list, user_list, message["channel"], token);
 
-    let channel: {} = value_or_retry(channel_list[message["channel"]], function(){
-      init_channel_list(token, channel_list);
-      return channel_list[message["channel"]];
-    });
-
-    // if channel is undefined, this is a DM (or a network error, which we don't consider for now)
-    if(!channel) {
-      let im: {} = value_or_retry(im_list[message["channel"]], function(){
-        init_im_list(token, im_list);
-        return im_list[message["channel"]];
-      });
-
-      // insert a fake channel into channe_list so that DMs and normal channels can be treated in the same way
-      channel_list[message["channel"]] = {
-        "name": "DM_to_" + user_list[im["user"]]["name"],
-        "color": channel_color(user_list[im["user"]]["name"])
-      };
-      channel = channel_list[message["channel"]];
-    }
-
-    let channel_name: string = channel["name"];
     if(!team_info["team"])
       get_team_info(token, team_info);
     let team_name: string = team_info["team"]["name"];
 
     let ts: string = message["ts"];
-    let tr_id = make_id("id_tr", ts, team_name, channel_name);
-    let text_id = make_id("text", ts, team_name, channel_name);
-    let reaction_id = make_id("reaction", ts, team_name, channel_name);
-    let button_id = make_id("button", ts, team_name, channel_name);
-    let del_id = make_id("del", ts, team_name, channel_name);
+    let tr_id = make_id("id_tr", ts, team_name, channel.name);
+    let text_id = make_id("text", ts, team_name, channel.name);
+    let reaction_id = make_id("reaction", ts, team_name, channel.name);
+    let button_id = make_id("button", ts, team_name, channel.name);
+    let del_id = make_id("del", ts, team_name, channel.name);
 
     if(message["subtype"] == "message_deleted") {
-      let pre_tr_id = make_id("id_tr", message["previous_message"]["ts"], team_name, channel_name);
+      let pre_tr_id = make_id("id_tr", message["previous_message"]["ts"], team_name, channel.name);
       return delete_message(pre_tr_id);
     } else if(message["subtype"] == "message_changed") {
-      let pre_text_id = make_id("text", message["previous_message"]["ts"], team_name, channel_name);
+      let pre_text_id = make_id("text", message["previous_message"]["ts"], team_name, channel.name);
       return update_message(pre_text_id, message, user_list, emoji_list, my_user_id, token);
     } else if(message["subtype"] == "bot_message") {
       if(!message["bot_id"]) { // "Only visible to you" bot has no bot_id or user info
@@ -476,7 +455,7 @@ for(var i in rtms){
 
     let link: string = "slack://channel?team=" + team_info["team"]["id"] + "&id=" + message["channel"];
     let image_column: string = "<td><img src='" + image  + "' /></td>";
-    let text_column: string = "<td><div><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + channel["color"] + "'>#" + channel_name + "</span></b></a> ";
+    let text_column: string = "<td><div><b>" + nick + " <a class='slack-link' href='" + link + "'><span style='color: " + channel.color + "'>#" + channel.name + "</span></b></a> ";
 
     if(tokens.length > 1) {
       let team_name_class = 'class="span-team-name"';
@@ -494,7 +473,7 @@ for(var i in rtms){
     text_column += `<div id="${reaction_id}" style="display: none;"></div></td>`;
 
     let style: string = "";
-    if(show_one_channel && (team_name != team_to_show || channel_name != ch_to_show))
+    if(show_one_channel && (team_name != team_to_show || channel.name != ch_to_show))
       style = "display: none";
     let record: string = "<tr id='" + tr_id +
       "' style='" + style + "'>"+ image_column + text_column + "</tr>";
@@ -506,7 +485,7 @@ for(var i in rtms){
 
     var button = $("#" + button_id);
     $("#" + button_id).click(function() {
-      let display_channel = "#" + channel_name;
+      let display_channel = "#" + channel.name;
       let emoji_this_channel = emojies.concat(); // deep copy: emojies.concat() returns a "new" array that contains "emojies + []"
 
       if(show_team_name_flag)

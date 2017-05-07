@@ -72,7 +72,3 @@ function get_maximum_thumbnail(file: {}): string{
 	    return file["thumb_" + sizes[i]];
     }
 }
-
-function value_or_retry(value, retry_func){
-    return value || retry_func();
-}
