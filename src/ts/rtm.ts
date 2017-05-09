@@ -363,7 +363,7 @@ for(var i in rtms){
       emoji_dom.find('.reaction-num').text(Number(count) + 1);
     } else {
       let emoji_dom = $("<div></div>").addClass("pull-left reaction-emoji-div " + emoji_class);
-      emoji_dom.html(emojione.shortnameToImage(":" + reaction["reaction"] + ":"));
+      emoji_dom.html(convert_emoji(":" + reaction["reaction"] + ":", emoji_list));
       emoji_dom.find('img').css("min-width", "0px");
       emoji_dom.find('img').css("min-height", "0px");
       emoji_dom.find('img').attr('title', user_name);
@@ -507,7 +507,7 @@ for(var i in rtms){
             }));
           },
           template: function (value) {
-            return `${value} ${emojione.shortnameToImage(":" + value + ":")}`;
+            return `${value} ${convert_emoji(":" + value + ":", emoji_list)}`;
           },
           replace: function(value){
             return ':' + value + ': ';
