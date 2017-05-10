@@ -375,6 +375,7 @@ for(var i in rtms){
 
   rtms[i].on(RTM_EVENTS.REACTION_REMOVED, function(reaction) {
     //console.log(reaction);
+    if(reaction["item"]["type"] != "message") return;
     if(!team_info["team"]) get_team_info(token, team_info);
     let item = reaction["item"];
     let user_name = user_list[reaction["user"]]["name"];
