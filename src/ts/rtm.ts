@@ -97,7 +97,7 @@ $("#slack_message_input").keydown(function(e) {
 });
 
 $("#slack_message_input").keyup(function(e) {
-  if(e.which == 27){ // Esc
+  if(e.which == 27) { // Esc
     $('#slack_message_form').hide();
   }
 });
@@ -212,7 +212,7 @@ function update_message(message_id: string, message: {}, user_list: {}, emoji_li
   let current_message: {} = message["message"];
   let message_form = $("#" + message_id);
 
-  current_message["text"] += "<span style='font-size: small; color: #aaaaaa;'> (edited)</span>";
+  current_message["text"] += "<span style='font-size: small; color: #aaaaaa;' class='edited-mark'> (edited)</span>";
   let edited_message = message_escape(current_message["text"], user_list, emoji_list, user_id);
   if(current_message["attachments"]) {
     edited_message += create_attachment_message(current_message["attachments"][0]);
@@ -405,6 +405,7 @@ for(var i in rtms){
 
 
   rtms[i].on(RTM_EVENTS.MESSAGE, function (message) {
+    // console.log(message);
     let my_user_id = this["activeUserId"];
     let image: string = "";
     let nick: string = "NoName";
@@ -419,6 +420,7 @@ for(var i in rtms){
     let text_id = make_id("text", ts, team_name, channel.name);
     let reaction_id = make_id("reaction", ts, team_name, channel.name);
     let button_id = make_id("button", ts, team_name, channel.name);
+    let edit_button_id = make_id("edit_button", ts, team_name, channel.name);
     let del_id = make_id("del", ts, team_name, channel.name);
 
     if(message["subtype"] == "message_deleted") {
@@ -468,8 +470,11 @@ for(var i in rtms){
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
 
     text_column += " <span id='" + button_id + "' class='glyphicon glyphicon-pencil message-button " + pencil_state + "'></span>";
-    if(my_user_id == message["user"])
+    if(my_user_id == message["user"]) {
+      text_column += " <span id='" + edit_button_id + "' class='glyphicon glyphicon-edit edit-message-button " + pencil_state + "'></span>";
       text_column += " <span style='float: right' id='" + del_id + "' class='glyphicon glyphicon-remove' />";
+    }
+
     text_column += "<span id='" + text_id + "' class='message'> "+ text + "</span></div>";
 
     text_column += `<div id="${reaction_id}" style="display: none;"></div></td>`;
@@ -486,7 +491,9 @@ for(var i in rtms){
     }
 
     var button = $("#" + button_id);
-    $("#" + button_id).click(function() {
+    var edit_button = $("#" + edit_button_id);
+
+    let click_send_message_button = function(post_message_func) {
       let display_channel = "#" + channel.name;
       let emoji_this_channel = emojies.concat(); // deep copy: emojies.concat() returns a "new" array that contains "emojies + []"
 
@@ -539,11 +546,30 @@ for(var i in rtms){
       $("#slack_message_channel").css("color", channel["color"]);
       $("#slack_message_input").focus();
 
-      post_message = function(text, on_finish){
+      post_message = post_message_func;
+    };
+
+    $("#" + button_id).click(function() {
+      let post_message_func = function(text, on_finish){
         web.chat.postMessage (message["channel"], text, { "as_user": true, "link_names": 1 }, function(err, info){
           on_finish(err);
         });
       };
+
+      click_send_message_button(post_message_func);
+    });
+
+    $("#" + edit_button_id).click(function() {
+      let post_message_func = function(text, on_finish){
+        web.chat.update (ts, message["channel"], text, { "as_user": true, "link_names": 1 }, function(err, info){
+          on_finish(err);
+        });
+      };
+
+      let current_text_dom = $('#' + text_id).clone();
+      current_text_dom.find('.edited-mark').remove();
+      $("#slack_message_input").val(current_text_dom.text());
+      click_send_message_button(post_message_func);
     });
 
     var del = $("#" + del_id);
