@@ -126,3 +126,19 @@ require('electron').ipcRenderer.on('activate_message_form', () => {
         $('#slack_message_input').focus();
     }
 });
+
+
+// edit
+$(document).on('keydown', function(e){
+    if(e.which == 38 && $('#slack_message_form').css('display') == "none") {
+        let edit_message_button = $('.edit-message-button').filter(function () {
+            return $(this).closest('tr').css('display') != 'none';
+        })[0];
+
+        submit_channel_index = 0;
+        if (edit_message_button) {
+            edit_message_button.click();
+            $('#slack_message_input').focus();
+        }
+    }
+});
