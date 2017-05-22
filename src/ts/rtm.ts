@@ -464,7 +464,13 @@ for(var i in rtms){
     if(tokens.length > 1) {
       let team_name_class = 'class="span-team-name"';
       if(!show_team_name_flag) team_name_class = 'class="span-team-name inactive-team-name"';
-      text_column += "<span " + team_name_class + ">(" + team_name + ")</span> ";
+
+      if(team_info["team"]["icon"]["image_default"]){
+        text_column += "<span " + team_name_class + ">(" + team_name + ")</span> ";
+      }
+      else{
+        text_column += "<span " + team_name_class + "><img src='" + team_info["team"]["icon"]["image_original"] + "' height=18 width=18 title='" + team_info["team"]["name"] + "' /></span> ";
+      }
     }
     text_column += "<span style='color: #aaaaaa; font-size: small;'>" + ts_s + "</span>";
     let pencil_state = show_pencils_flag ? 'active_pencil' : 'inactive_pencil';
