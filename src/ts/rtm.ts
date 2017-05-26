@@ -563,6 +563,12 @@ for(var i in rtms){
             on_finish(err);
           });
           return;
+        } else if(text.trim().match(/^\-:(.*):$/)) {
+          let emotion = text.trim().match(/^\-:(.*):$/)[1];
+          web.reactions.remove(emotion, { "timestamp": ts, "channel": message["channel"]}, function(err, info){
+            on_finish(err);
+          });
+          return;
         }
 
         web.chat.postMessage (message["channel"], text, { "as_user": true, "link_names": 1 }, function(err, info){
