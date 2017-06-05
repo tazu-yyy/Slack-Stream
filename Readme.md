@@ -1,3 +1,6 @@
+# This project moved to [ASlack-Stream](https://github.com/mazun/ASlack-Stream)
+Please commit to a new repository.
+
 # Slack Stream
 ## Introduction
 Ever had a trouble clicking the Slack window so many times to find the conversation you are looking for?
